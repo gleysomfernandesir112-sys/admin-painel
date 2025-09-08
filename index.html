@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fasthub Cloud Admin</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* From style.css */
+        .bg-image {
+            background-image: url('https://images.unsplash.com/photo-1593464317923-563703ac55b5?q=80&w=1887&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        .sidebar .nav-link {
+            color: white;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+
+        .table .btn {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen">
+        <!-- Login View -->
+        <div id="login-view" class="flex items-center justify-center h-screen bg-image">
+            <div class="bg-white p-8 rounded-lg shadow-md login-container">
+                <h2 class="text-2xl font-bold mb-6 text-center">Admin Login</h2>
+                <p class="text-center mb-4">Bem-vindo ao painel de controle.</p>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="text" id="username" class="mt-1 block w-full p-2 border border-gray-300 rounded-md form-control" placeholder="Email" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                        <input type="password" id="password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md form-control" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 btn btn-primary">Entrar</button>
+                    <p id="error-message" class="text-red-500 text-center mt-4 hidden"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard View -->
+        <div id="admin-dashboard-view" class="hidden flex">
+            <aside class="sidebar bg-gray-800 text-white h-screen p-4">
+                <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
+                <nav>
+                    <ul>
+                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
+                        <li><a href="#" data-view="resellers" class="nav-link block p-2 hover:bg-gray-700">Revendedores</a></li>
+                        
+                    </ul>
+                </nav>
+                <a href="#" id="logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+            </aside>
+            <main class="main-content p-6">
+                <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold">Total de Usuários</h2>
+                        <p id="total-users-count" class="text-2xl">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold">Créditos</h2>
+                        <p class="text-2xl">Infinito (∞)</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold mb-4">Usuários por Criador</h2>
+                        <div style="width: 100%; max-width: 400px; margin: auto;">
+                            <canvas id="users-by-creator-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold mb-4">Detalhes por Criador</h2>
+                        <table class="table w-full">
+                            <thead>
+                                <tr>
+                                    <th>Criador</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-by-creator-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Gerenciamento de Usuários</h2>
+                    <div class="mb-4">
+                        <button id="open-create-user-modal" class="btn btn-primary mr-2">Criar Usuário</button>
+                        <button id="generate-test-account-admin" class="btn btn-info mr-2">Gerar Teste</button>
+                        <button id="open-bulk-create-modal" class="btn btn-success">Criar em Massa</button>
+                    </div>
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Expiração</th>
+                                <th>Criado por</th>
+                                <th>Status</th>
+                                <th>Criado em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Reseller Dashboard View -->
+        <div id="reseller-dashboard-view" class="hidden flex">
+            <aside class="sidebar bg-gray-800 text-white h-screen p-4">
+                <h2 class="text-xl font-bold mb-4">Painel Revendedor</h2>
+                <nav>
+                    <ul>
+                        <li><a href="#" data-view="reseller-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
+                    </ul>
+                </nav>
+                <a href="#" id="reseller-logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+            </aside>
+            <main class="main-content p-6">
+                <h1 class="text-3xl font-bold mb-6">Dashboard do Revendedor</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold">Créditos Restantes</h2>
+                        <p id="credits-remaining" class="text-2xl">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold">Seus Usuários</h2>
+                        <p id="reseller-users-count" class="text-2xl">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Seus Usuários</h2>
+                    <button id="create-user-btn" class="btn btn-primary mb-4">Criar Usuário</button>
+                    <button id="generate-test-account-reseller" class="btn btn-info mb-4">Gerar Teste</button>
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Expiração</th>
+                                <th>Status</th>
+                                <th>Criado em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reseller-users-table"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Resellers Management View -->
+        <div id="resellers-view" class="hidden flex">
+            <aside class="sidebar bg-gray-800 text-white h-screen p-4">
+                <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
+                <nav>
+                    <ul>
+                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
+                        <li><a href="#" data-view="resellers" class="nav-link block p-2 hover:bg-gray-700">Revendedores</a></li>
+                        
+                    </ul>
+                </nav>
+                <a href="#" id="resellers-logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+            </aside>
+            <main class="main-content p-6">
+                <h1 class="text-3xl font-bold mb-6">Gerenciamento de Revendedores</h1>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Todos os Revendedores</h2>
+                    <button id="open-create-reseller-modal" class="btn btn-primary mb-4">Criar Revendedor</button>
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Créditos (Usados/Total)</th>
+                                <th>Usuários Criados</th>
+                                <th>Data de Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resellers-table"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Create User Modal -->"block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+            </aside>
+            <main class="main-content p-6">
+                <h1 class="text-3xl font-bold mb-6">Estatísticas</h1>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold">Total de Clientes</h2>
+                        <p id="stats-total-users" class="text-2xl">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Clientes por Revendedor</h2>
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Revendedor</th>
+                                <th>Clientes Ativos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-reseller-table-body"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Create User Modal -->
+        <div class="modal fade" id="create-user-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Criar Novo Usuário</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="create-user-form">
+                            <div class="mb-3">
+                                <label for="new-username" class="form-label">Usuário</label>
+                                <input type="text" class="form-control" id="new-username" placeholder="nome (será nome@fasthub.cloud)" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-password" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="new-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="duration-value" class="form-label">Duração (1-12 Meses)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="duration-value" min="1" max="12" value="1" required>
+                                    <select class="form-select" id="duration-unit">
+                                        <option value="months" selected>Meses</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="lifetime-account">
+                                    <label class="form-check-label" for="lifetime-account">Conta Vitalícia</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p>Custo de Créditos: <span id="credits-cost">0</span></p>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Criar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Create Users Modal -->
+        <div class="modal fade" id="bulk-create-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Criar Usuários em Massa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="bulk-create-form">
+                            <div class="mb-3">
+                                <label for="bulk-quantity" class="form-label">Quantidade</label>
+                                <input type="number" class="form-control" id="bulk-quantity" min="1" required>
+                            </div>
+                            <div class="mb-3" id="bulk-account-type-group">
+                                <label class="form-label">Tipo de Conta</label>
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="bulkAccountType" id="bulkTempAccount" value="temporary" checked>
+                                        <label class="form-check-label" for="bulkTempAccount">Temporária (1 mês)</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="bulkAccountType" id="bulkLifetimeAccount" value="lifetime">
+                                        <label class="form-check-label" for="bulkLifetimeAccount">Vitalícia</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p>Custo Total de Créditos: <span id="bulk-credits-cost">0</span></p>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Gerar Contas</button>
+                        </form>
+                        <div id="generated-accounts" class="mt-3 hidden">
+                            <p class="font-semibold">Contas Geradas:</p>
+                            <pre id="accounts-list" class="bg-light p-2 rounded"></pre>
+                            <button id="copy-accounts" class="btn btn-primary mt-2">Copiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Reseller Modal -->
+        <div class="modal fade" id="create-reseller-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Criar Novo Revendedor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="create-reseller-form">
+                            <div class="mb-3">
+                                <label for="reseller-email" class="form-label">Email de Login</label>
+                                <input type="text" class="form-control" id="reseller-email" placeholder="nome (será nome@fasthub.cloud)" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reseller-password" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="reseller-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reseller-credits" class="form-label">Quantidade de Créditos</label>
+                                <input type="number" class="form-control" id="reseller-credits" min="0" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Criar Revendedor</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Password Modal -->
+        <div class="modal fade" id="reset-password-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Resetar Senha</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="reset-username-display"></p>
+                        <form id="reset-password-form">
+                            <input type="hidden" id="reset-username-input">
+                            <div class="mb-3">
+                                <label for="new-user-password" class="form-label">Nova Senha</label>
+                                <input type="password" class="form-control" id="new-user-password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Salvar Nova Senha</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Credits Modal -->
+        <div class="modal fade" id="add-credits-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adicionar Créditos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-credits-form">
+                            <input type="hidden" id="add-credits-reseller-id">
+                            <div class="mb-3">
+                                <label for="add-credits-amount" class="form-label">Quantidade de Créditos</label>
+                                <input type="number" class="form-control" id="add-credits-amount" min="1" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Initialization -->
+    <script type="module" src="firebase-init.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        // Import Firebase functions from firebase-init.js
+        
+        import { initializeApp, deleteApp, auth, onAuthStateChanged, signOut, db, ref, set, get, onValue, remove, update, createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from './firebase-init.js';
+
+        // View Management
+        const views = {
+            'login': document.getElementById('login-view'),
+            'admin-dashboard': document.getElementById('admin-dashboard-view'),
+            'reseller-dashboard': document.getElementById('reseller-dashboard-view'),
+            'resellers': document.getElementById('resellers-view')
+        };
+
+        function showView(view) {
+            console.log(`Showing view: ${view}`);
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            views[view].classList.remove('hidden');
+        }
+
+        // Modals
+        const createUserModal = new bootstrap.Modal(document.getElementById('create-user-modal'));
+        const bulkCreateModal = new bootstrap.Modal(document.getElementById('bulk-create-modal'));
+        const createResellerModal = new bootstrap.Modal(document.getElementById('create-reseller-modal'));
+        const resetPasswordModal = new bootstrap.Modal(document.getElementById('reset-password-modal'));
+        const addCreditsModal = new bootstrap.Modal(document.getElementById('add-credits-modal'));
+
+        // Authentication State
+        onAuthStateChanged(auth, user => {
+            console.log('Auth state changed:', user ? `User: ${user.email}` : 'No user');
+            if (user) {
+                // Se o email for o do admin, trata como admin
+                if (user.email === 'admin@fasthub.cloud') {
+                    console.log('Admin user detected by email, loading admin dashboard');
+                    showView('admin-dashboard');
+                    loadAdminDashboard();
+                } else {
+                    // Para outros usuários, verifica se é um revendedor
+                    const resellerRef = ref(db, `resellers/${user.uid}`);
+                    get(resellerRef).then(resellerSnapshot => {
+                        if (resellerSnapshot.exists()) {
+                            console.log('Reseller detected, loading reseller dashboard');
+                            sessionStorage.setItem('resellerId', user.uid);
+                            sessionStorage.setItem('resellerEmail', user.email);
+                            showView('reseller-dashboard');
+                            loadResellerDashboard(user.uid);
+                        } else {
+                            console.error('User is not a reseller, signing out');
+                            signOut(auth);
+                            showView('login');
+                        }
+                    }).catch(error => {
+                        console.error('Error checking reseller:', error);
+                        signOut(auth);
+                        showView('login');
+                    });
+                }
+            } else {
+                console.log('No user authenticated, showing login view.');
+                showView('login');
+            }
+        });
+
+        
+
+        // Logout
+        document.querySelectorAll('#logout-button, #reseller-logout-button, #resellers-logout-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                console.log('Logging out');
+                sessionStorage.clear();
+                signOut(auth).then(() => showView('login'));
+            });
+        });
+
+        // Login Form Handler
+        document.getElementById('login-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.classList.add('hidden');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged will handle showing the correct dashboard.
+            } catch (error) {
+                console.error("Login failed:", error);
+                errorMessage.textContent = 'Usuário ou senha inválidos.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('a[data-view]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const view = e.target.dataset.view;
+                console.log(`Navigating to view: ${view}`);
+                showView(view);
+                if (view === 'admin-dashboard') loadAdminDashboard();
+                else if (view === 'resellers') loadResellers();
+                else if (view === 'stats') loadStatsDashboard();
+                else if (view === 'reseller-dashboard') loadResellerDashboard(auth.currentUser.uid);
+            });
+        });
+
+        // Load Admin Dashboard
+        function loadAdminDashboard() {
+            console.log('Loading admin dashboard');
+            const usersRef = ref(db, 'users');
+            const resellersRef = ref(db, 'resellers');
+
+            // Existing users table logic
+            onValue(usersRef, async snapshot => {
+                const users = snapshot.val() || {}; // Ensure users is always an object
+                const usersTableBody = document.getElementById('users-table-body');
+                usersTableBody.innerHTML = '';
+                document.getElementById('total-users-count').textContent = Object.keys(users).length;
+
+                if (Object.keys(users).length > 0) {
+                    Object.entries(users).forEach(([uid, user]) => {
+                        const statusBadge = user.status === 'active' ? `<span class="badge bg-success">Ativo</span>` : `<span class="badge bg-danger">Bloqueado</span>`;
+                        const createdByDisplay = user.createdBy ? user.createdBy.replace(/_/g, '.') : 'Admin';
+                        const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
+                        const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
+
+                        const row = `<tr>
+                            <td>${user.email}</td>
+                            <td>${accountTypeDisplay}</td>
+                            <td>${expirationDisplay}</td>
+                            <td>${createdByDisplay}</td>
+                            <td>${statusBadge}</td>
+                            <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="handleAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
+                                <button class="btn btn-info btn-sm" onclick="handleAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
+                                <button class="btn btn-secondary btn-sm" onclick="handleAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="handleAction('delete', '${uid}', '${user.createdBy || ''}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>`;
+                        usersTableBody.innerHTML += row;
+                    });
+                } else {
+                    usersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>'; // Updated colspan
+                }
+
+                // --- STATS LOGIC INTEGRATED HERE ---
+                try {
+                    const resellersSnapshot = await get(resellersRef);
+                    const resellers = resellersSnapshot.val() || {}; // Ensure resellers is always an object
+
+                    const stats = {};
+                    const colors = [
+                        '#4CAF50', '#2196F3', '#FFC107', '#F4436', '#9C27B0', '#00BCD4', '#FF9800', '#795548', '#607D8B', '#E91E63',
+                        '#8BC34A', '#03A9F4', '#FFEB3B', '#CDDC39', '#FF5722', '#9E9E9E', '#3F51B5', '#C5CAE9', '#FFD700', '#ADFF2F'
+                    ];
+                    let colorIndex = 0;
+
+                    for (const resellerId in resellers) {
+                        stats[resellerId] = {
+                            name: resellers[resellerId].email,
+                            count: 0,
+                            color: colors[colorIndex % colors.length]
+                        };
+                        colorIndex++;
+                    }
+                    stats['admin'] = { name: 'Admin (você)', count: 0, color: colors[colorIndex % colors.length] };
+                    colorIndex++;
+
+                    for (const userId in users) {
+                        const creator = users[userId].createdBy || 'admin';
+                        if (stats[creator]) {
+                            stats[creator].count++;
+                        } else {
+                            stats[creator] = { name: creator, count: 1, color: colors[colorIndex % colors.length] };
+                            colorIndex++;
+                        }
+                    }
+
+                    const chartLabels = [];
+                    const chartData = [];
+                    const chartBackgroundColors = [];
+                    const chartBorderColors = [];
+                    const tableBody = document.getElementById('users-by-creator-table-body');
+                    tableBody.innerHTML = '';
+
+                    Object.values(stats).sort((a, b) => b.count - a.count).forEach(data => {
+                        if (data.count > 0) {
+                            chartLabels.push(data.name);
+                            chartData.push(data.count);
+                            chartBackgroundColors.push(data.color);
+                            chartBorderColors.push(data.color);
+
+                            const row = `<tr>
+                                <td>${data.name}</td>
+                                <td>${data.count}</td>
+                            </tr>`;
+                            tableBody.innerHTML += row;
+                        }
+                    });
+
+                    const ctx = document.getElementById('users-by-creator-chart').getContext('2d');
+
+                    if (window.usersByCreatorChartInstance) {
+                        window.usersByCreatorChartInstance.destroy();
+                    }
+
+                    window.usersByCreatorChartInstance = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                data: chartData,
+                                backgroundColor: chartBackgroundColors,
+                                borderColor: chartBorderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Usuários por Criador'
+                                }
+                            }
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("Error loading stats for admin dashboard:", error);
+                    document.getElementById('users-by-creator-table-body').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
+                }
+            }, error => {
+                console.error('Error loading admin dashboard:', error);
+            });
+        }
+
+        // Load Reseller Dashboard
+        function loadResellerDashboard(resellerId) {
+            console.log(`Loading reseller dashboard for ID: ${resellerId}`);
+            const resellerRef = ref(db, `resellers/${resellerId}`);
+            const usersRef = ref(db, 'users');
+            let creditsRemaining = 0;
+
+            onValue(resellerRef, snapshot => {
+                const resellerData = snapshot.val();
+                if (resellerData) {
+                    const usedCredits = resellerData.credits_used || 0;
+                    const totalCredits = resellerData.credits_total || 0;
+                    creditsRemaining = totalCredits - usedCredits;
+                    document.getElementById('credits-remaining').textContent = creditsRemaining;
+                    document.getElementById('create-user-btn').disabled = creditsRemaining <= 0;
+                    document.getElementById('create-user-btn').title = creditsRemaining <= 0 ? "Créditos insuficientes" : "";
+                } else {
+                    console.error('Reseller data not found');
+                }
+            }, error => {
+                console.error('Error loading reseller data:', error);
+            });
+
+            onValue(usersRef, snapshot => {
+                const allUsers = snapshot.val();
+                const usersTableBody = document.getElementById('reseller-users-table');
+                usersTableBody.innerHTML = '';
+                let userCount = 0;
+
+                if (allUsers) {
+                    Object.entries(allUsers).forEach(([uid, user]) => {
+                        if (user.createdBy === resellerId) {
+                            userCount++;
+                            const statusBadge = user.status === 'active' ? `<span class="badge bg-success">Ativo</span>` : `<span class="badge bg-danger">Bloqueado</span>`;
+                            const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
+                            const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
+
+                            const row = `<tr>
+                                <td>${user.email}</td>
+                                <td>${accountTypeDisplay}</td>
+                                <td>${expirationDisplay}</td>
+                                <td>${statusBadge}</td>
+                                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="handleResellerAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
+                                    <button class="btn btn-info btn-sm" onclick="handleResellerAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
+                                    <button class="btn btn-secondary btn-sm" onclick="handleResellerAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="handleResellerAction('delete', '${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                                </td>
+                            </tr>`;
+                            usersTableBody.innerHTML += row;
+                        }
+                    });
+                }
+                document.getElementById('reseller-users-count').textContent = userCount;
+                if (userCount === 0) {
+                    usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Você ainda não criou nenhum usuário.</td></tr>'; // Updated colspan
+                }
+            }, error => {
+                console.error('Error loading reseller users:', error);
+            });
+        }
+
+        // Load Resellers
+        function loadResellers() {
+            console.log('Loading resellers');
+            const resellersRef = ref(db, 'resellers');
+            onValue(resellersRef, snapshot => {
+                const resellers = snapshot.val();
+                const resellersTableBody = document.getElementById('resellers-table');
+                resellersTableBody.innerHTML = '';
+
+                if (resellers) {
+                    Object.entries(resellers).forEach(([uid, reseller]) => {
+                        const creditsUsed = reseller.credits_used || 0;
+                        const creditsTotal = reseller.credits_total || 0;
+                        const row = `<tr>
+                            <td>${reseller.email}</td>
+                            <td>${creditsUsed} / ${creditsTotal}</td>
+                            <td>${creditsUsed}</td>
+                            <td>${new Date(reseller.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm" onclick="openAddCreditsModal('${uid}')" title="Adicionar Créditos"><i class="bi bi-plus-circle-fill"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                            </td>
+                        </tr>`;
+                        resellersTableBody.innerHTML += row;
+                    });
+                } else {
+                    resellersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum revendedor encontrado.</td></tr>';
+                }
+            }, error => {
+                console.error('Error loading resellers:', error);
+            });
+        }
+
+        async function loadStatsDashboard() {
+            console.log('Loading stats dashboard');
+            const usersRef = ref(db, 'users');
+            const resellersRef = ref(db, 'resellers');
+            
+            try {
+                const [usersSnapshot, resellersSnapshot] = await Promise.all([get(usersRef), get(resellersRef)]);
+                const users = usersSnapshot.val() || {};
+                const resellers = resellersSnapshot.val() || {};
+
+                const totalUsers = Object.keys(users).length;
+                document.getElementById('stats-total-users').textContent = totalUsers;
+
+                const stats = {};
+
+                // Initialize stats with all resellers
+                for (const resellerId in resellers) {
+                    stats[resellerId] = {
+                        name: resellers[resellerId].email,
+                        count: 0
+                    };
+                }
+                stats['admin'] = { name: 'Admin (você)', count: 0 };
+
+                // Count users for each creator
+                for (const userId in users) {
+                    const creator = users[userId].createdBy || 'admin';
+                    if (stats[creator]) {
+                        stats[creator].count++;
+                    } else {
+                        // Handle cases where user creator is not in resellers list (e.g. old data)
+                        stats[creator] = { name: creator, count: 1 };
+                    }
+                }
+
+                const tableBody = document.getElementById('stats-reseller-table-body');
+                tableBody.innerHTML = '';
+                Object.values(stats).sort((a, b) => b.count - a.count).forEach(data => {
+                    const row = `<tr>
+                        <td>${data.name}</td>
+                        <td>${data.count}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+
+            } catch (error) {
+                console.error("Error loading stats dashboard:", error);
+                document.getElementById('stats-reseller-table-body').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
+            }
+        }
+
+        // Admin Actions
+        window.handleAction = async (action, userId, createdBy) => {
+            const userRef = ref(db, `users/${userId}`);
+            console.log(`Admin action: ${action} on user ${userId}`);
+
+            if (action === 'toggleBlock') {
+                const snapshot = await get(userRef);
+                const newStatus = snapshot.val().status === 'active' ? 'blocked' : 'active';
+                await update(userRef, { status: newStatus });
+                alert(`Usuário ${newStatus === 'active' ? 'desbloqueado' : 'bloqueado'}.`);
+            } else if (action === 'renew') {
+                if (!confirm(`Tem certeza que deseja renovar a conta do usuário ${userId} por 30 dias?`)) return;
+                const newExpirationDate = new Date();
+                newExpirationDate.setDate(newExpirationDate.getDate() + 30);
+                await update(userRef, { expirationDate: newExpirationDate.toISOString() });
+                alert('Conta renovada com sucesso por 30 dias!');
+            } else if (action === 'resetPassword') {
+                const snapshot = await get(userRef);
+                document.getElementById('reset-username-display').textContent = snapshot.val().email;
+                document.getElementById('reset-username-input').value = userId;
+                resetPasswordModal.show();
+            } else if (action === 'delete') {
+                if (!confirm(`Tem certeza que deseja excluir o usuário ${userId}? Esta ação não pode ser desfeita.`)) return;
+                await remove(userRef);
+                if (createdBy && createdBy !== 'admin') {
+                    const resellerRef = ref(db, `resellers/${createdBy}`);
+                    const resellerSnapshot = await get(resellerRef);
+                    if (resellerSnapshot.exists()) {
+                        const currentUsedCredits = resellerSnapshot.val().credits_used || 0;
+                        await update(resellerRef, { credits_used: Math.max(0, currentUsedCredits - 1) });
+                    }
+                }
+                alert('Usuário excluído com sucesso!');
+            }
+        };
+
+        // Reseller Actions
+        window.handleResellerAction = async (action, userId) => {
+            const userRef = ref(db, `users/${userId}`);
+            console.log(`Reseller action: ${action} on user ${userId}`);
+
+            if (action === 'toggleBlock') {
+                const snapshot = await get(userRef);
+                const newStatus = snapshot.val().status === 'active' ? 'blocked' : 'active';
+                await update(userRef, { status: newStatus });
+                alert(`Usuário ${newStatus === 'active' ? 'desbloqueado' : 'bloqueado'}.`);
+            } else if (action === 'renew') {
+                if (!confirm(`Tem certeza que deseja renovar a conta do usuário ${userId} por 30 dias?`)) return;
+                const newExpirationDate = new Date();
+                newExpirationDate.setDate(newExpirationDate.getDate() + 30);
+                await update(userRef, { expirationDate: newExpirationDate.toISOString() });
+                alert('Conta renovada com sucesso por 30 dias!');
+            } else if (action === 'resetPassword') {
+                const snapshot = await get(userRef);
+                document.getElementById('reset-username-display').textContent = snapshot.val().email;
+                document.getElementById('reset-username-input').value = userId;
+                resetPasswordModal.show();
+            } else if (action === 'delete') {
+                if (!confirm(`Tem certeza que deseja excluir o usuário ${userId}? 1 crédito será devolvido.`)) return;
+                await remove(userRef);
+                const resellerRef = ref(db, `resellers/${auth.currentUser.uid}`);
+                const resellerSnapshot = await get(resellerRef);
+                const currentUsedCredits = resellerSnapshot.val().credits_used || 0;
+                await update(resellerRef, { credits_used: Math.max(0, currentUsedCredits - 1) });
+                alert('Usuário excluído e crédito devolvido!');
+            }
+        };
+
+        // Generate Test Account
+        async function generateTestAccount() {
+            if (!confirm('Gerar uma conta de teste gratuita por 3 horas?')) return;
+
+            const username = `teste_${Date.now()}`;
+            const password = Math.random().toString(36).slice(-8);
+            const email = `${username}@fasthub.cloud`;
+            const isReseller = auth.currentUser ? auth.currentUser.email !== 'admin@fasthub.cloud' : false;
+            const createdBy = isReseller ? auth.currentUser.uid : 'admin';
+
+            const expirationDate = new Date();
+            expirationDate.setHours(expirationDate.getHours() + 3);
+
+            try {
+                console.log(`Attempting to create test user: ${email}`);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log("Test user created in Firebase Auth with UID:", user.uid);
+
+                const userRef = ref(db, `users/${user.uid}`);
+                const userData = {
+                    email: email,
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    createdBy: createdBy,
+                    role: 'user',
+                    accountType: 'test',
+                    expirationDate: expirationDate.toISOString()
+                };
+
+                await set(userRef, userData);
+                console.log("Test user data set in Firebase Database.");
+
+                alert(`Conta de teste criada com sucesso!\n\nUsuário: ${username}\nSenha: ${password}`);
+                
+                // Recarregar o dashboard para mostrar o novo usuário
+                if (isReseller) {
+                    loadResellerDashboard(createdBy);
+                } else {
+                    loadAdminDashboard();
+                }
+
+            } catch (error) {
+                console.error('Error creating test user:', error);
+                alert('Erro ao criar conta de teste: ' + error.message);
+            }
+        }
+
+        document.getElementById('generate-test-account-admin').addEventListener('click', generateTestAccount);
+        document.getElementById('generate-test-account-reseller').addEventListener('click', generateTestAccount);
+
+        // Create User
+        document.getElementById('open-create-user-modal').addEventListener('click', () => createUserModal.show());
+        document.getElementById('create-user-btn').addEventListener('click', () => createUserModal.show());
+        document.getElementById('create-user-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            console.log("Create user form submitted.");
+            const username = document.getElementById('new-username').value.trim();
+            const password = document.getElementById('new-password').value;
+            const email = `${username}@fasthub.cloud`;
+            const isReseller = auth.currentUser ? auth.currentUser.email !== 'admin@fasthub.cloud' : false;
+
+            let creditsCost = 0;
+            let expirationDate = null;
+            let accountType = 'temporary';
+
+            if (document.getElementById('lifetime-account').checked) {
+                creditsCost = 15; // New lifetime cost
+                accountType = 'lifetime';
+            } else {
+                const durationValue = parseInt(document.getElementById('duration-value').value);
+                if (durationValue > 12 || durationValue < 1) {
+                    alert("A duração deve ser entre 1 e 12 meses.");
+                    return;
+                }
+                
+                // New credit cost logic
+                if (durationValue == 1) creditsCost = 2;
+                else if (durationValue <= 3) creditsCost = 4;
+                else if (durationValue <= 6) creditsCost = 7;
+                else creditsCost = 10; // 7 to 12 months
+
+                const now = new Date();
+                expirationDate = new Date(now.setMonth(now.getMonth() + durationValue)).toISOString();
+            }
+
+            if (isReseller) {
+                const resellerRef = ref(db, `resellers/${auth.currentUser.uid}`);
+                const resellerSnapshot = await get(resellerRef);
+                const resellerData = resellerSnapshot.val();
+                const creditsRemaining = (resellerData.credits_total || 0) - (resellerData.credits_used || 0);
+                if (creditsRemaining < creditsCost) {
+                    alert(`Você não tem créditos suficientes. Necessário: ${creditsCost}, Disponível: ${creditsRemaining}.`);
+                    return;
+                }
+            }
+
+            // --- FIX: Use a temporary Firebase app to create users without logging out the admin ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyCY9sq12w7H9X3hm9FLa_KkazKONpm1nJE",
+                authDomain: "fasthub-9a206.firebaseapp.com",
+                databaseURL: "https://fasthub-9a206-default-rtdb.firebaseio.com",
+                projectId: "fasthub-9a206",
+                storageBucket: "fasthub-9a206.appspot.com",
+                messagingSenderId: "685686875831",
+                appId: "1:685686875831:web:a31c42df4b9f6bd7b88f32"
+            };
+            const tempAppName = 'secondary-app-' + Date.now();
+            const tempApp = initializeApp(firebaseConfig, tempAppName);
+            const tempAuth = getAuth(tempApp);
+            
+            try {
+                console.log("Attempting to create user with email and password in temporary app...");
+                const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                const user = userCredential.user;
+                console.log("User created in Firebase Auth with UID:", user.uid);
+
+                const userRef = ref(db, `users/${user.uid}`);
+
+                const userData = {
+                    email: email,
+                    status: 'active',
+                    createdAt: new Date().toISOString(),
+                    createdBy: isReseller ? auth.currentUser.uid : 'admin',
+                    role: 'user',
+                    accountType: accountType
+                };
+                if (expirationDate) {
+                    userData.expirationDate = expirationDate;
+                }
+
+                console.log("Setting user data in main Firebase Database:", userData);
+                await set(userRef, userData);
+                console.log("User data set in Firebase Database.");
+
+                if (isReseller) {
+                    console.log("Updating reseller credits...");
+                    const resellerRef = ref(db, `resellers/${auth.currentUser.uid}`);
+                    const resellerSnapshot = await get(resellerRef);
+                    const currentUsedCredits = resellerSnapshot.val().credits_used || 0;
+                    await update(resellerRef, { credits_used: currentUsedCredits + creditsCost });
+                    console.log("Reseller credits updated.");
+                }
+                alert(`Usuário criado com sucesso!${isReseller ? ` ${creditsCost} crédito(s) utilizado(s).` : ''}`);
+                createUserModal.hide();
+                document.getElementById('create-user-form').reset();
+                if (isReseller) loadResellerDashboard(auth.currentUser.uid);
+                else loadAdminDashboard();
+            } catch (error) {
+                console.error('Error creating user:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Erro: Este e-mail (nome de usuário) já está em uso.');
+                } else {
+                    alert('Erro ao criar usuário: ' + error.message);
+                }
+            } finally {
+                // Clean up the temporary app
+                await deleteApp(tempApp);
+                console.log("Temporary app deleted.");
+            }
+        });
+
+        // Bulk Create Users
+        document.getElementById('open-bulk-create-modal').addEventListener('click', () => bulkCreateModal.show());
+        document.getElementById('bulk-create-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const isReseller = auth.currentUser ? auth.currentUser.email !== 'admin@fasthub.cloud' : false;
+            const quantity = parseInt(document.getElementById('bulk-quantity').value);
+            const accountType = document.querySelector('input[name="bulkAccountType"]:checked').value;
+            let creditsCostPerUser = 0;
+            if (accountType === 'temporary') {
+                creditsCostPerUser = 2;
+            } else if (accountType === 'lifetime') {
+                creditsCostPerUser = 15;
+            }
+            const totalCreditsCost = quantity * creditsCostPerUser;
+
+            console.log(`Bulk creation: Quantity: ${quantity}, Account Type: ${accountType}, Total Credits Cost: ${totalCreditsCost}`);
+
+            // Check if current user is reseller and has enough credits
+            
+            if (isReseller) {
+                const resellerRef = ref(db, `resellers/${auth.currentUser.uid}`);
+                const resellerSnapshot = await get(resellerRef);
+                const resellerData = resellerSnapshot.val();
+                const creditsRemaining = (resellerData.credits_total || 0) - (resellerData.credits_used || 0);
+                if (creditsRemaining < totalCreditsCost) {
+                    alert(`Você não tem créditos suficientes para criar ${quantity} contas ${accountType === 'temporary' ? 'temporárias' : 'vitalícias'}. Necessário: ${totalCreditsCost}, Disponível: ${creditsRemaining}.`);
+                    return;
+                }
+            }
+
+            const accounts = [];
+            for (let i = 0; i < quantity; i++) {
+                const username = `user${Date.now()}${i}`;
+                const password = Math.random().toString(36).slice(-8);
+                const email = `${username}@fasthub.cloud`;
+                let expirationDate = null;
+                if (accountType === 'temporary') {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() + 1); // 1 month from now
+                    expirationDate = date.toISOString();
+                }
+                accounts.push({ email, password, accountType, expirationDate });
+            }
+            document.getElementById('accounts-list').textContent = accounts.map(a => `${a.email}:${a.password}`).join('\n');
+            document.getElementById('generated-accounts').classList.remove('hidden');
+            
+            for (const acc of accounts) {
+                try {
+                    // 1. Criar usuário no Auth
+                    const userCredential = await createUserWithEmailAndPassword(auth, acc.email, acc.password);
+                    const user = userCredential.user;
+
+                    // 2. Usar o UID real para a referência do DB
+                    const userRef = ref(db, `users/${user.uid}`);
+                    
+                    const userData = {
+                        email: acc.email,
+                        status: 'active',
+                        createdAt: new Date().toISOString(),
+                        createdBy: isReseller ? auth.currentUser.uid : 'admin',
+                        role: 'user',
+                        accountType: acc.accountType
+                    };
+                    if (acc.expirationDate) {
+                        userData.expirationDate = acc.expirationDate;
+                    }
+
+                    // 3. Salvar os dados no DB com o UID correto
+                    await set(userRef, userData);
+
+                } catch (error) {
+                    console.error(`Erro ao criar usuário em massa (${acc.email}):`, error.message);
+                    // Continua para o próximo usuário em caso de falha individual
+                }
+            }
+
+            if (isReseller) {
+                const resellerRef = ref(db, `resellers/${auth.currentUser.uid}`);
+                const resellerSnapshot = await get(resellerRef);
+                const currentUsedCredits = resellerSnapshot.val().credits_used || 0;
+                await update(resellerRef, { credits_used: currentUsedCredits + totalCreditsCost });
+            }
+
+            alert('Contas geradas com sucesso!');
+            bulkCreateModal.hide();
+            loadAdminDashboard();
+        });
+        document.getElementById('copy-accounts').addEventListener('click', () => {
+            const text = document.getElementById('accounts-list').textContent;
+            navigator.clipboard.writeText(text);
+            alert('Contas copiadas!');
+        });
+
+        // Function to update bulk credits cost display
+        function updateBulkCreditsCostDisplay() {
+            const quantity = parseInt(document.getElementById('bulk-quantity').value) || 0;
+            const accountType = document.querySelector('input[name="bulkAccountType"]:checked').value;
+            let creditsCostPerUser = 0;
+            if (accountType === 'temporary') {
+                creditsCostPerUser = 1;
+            } else if (accountType === 'lifetime') {
+                creditsCostPerUser = 15;
+            }
+            const totalCreditsCost = quantity * creditsCostPerUser;
+            document.getElementById('bulk-credits-cost').textContent = totalCreditsCost;
+        }
+
+        // Event listeners for bulk credits cost display
+        document.getElementById('bulk-quantity').addEventListener('input', updateBulkCreditsCostDisplay);
+        document.querySelectorAll('input[name="bulkAccountType"]').forEach(radio => {
+            radio.addEventListener('change', updateBulkCreditsCostDisplay);
+        });
+
+        // Call on modal show to initialize
+        document.getElementById('bulk-create-modal').addEventListener('show.bs.modal', updateBulkCreditsCostDisplay);
+
+        // Create Reseller
+        document.getElementById('open-create-reseller-modal').addEventListener('click', () => createResellerModal.show());
+        document.getElementById('create-reseller-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            console.log("Create reseller form submitted.");
+            const email = `${document.getElementById('reseller-email').value.trim()}@fasthub.cloud`;
+            const password = document.getElementById('reseller-password').value;
+            const credits = parseInt(document.getElementById('reseller-credits').value);
+
+            try {
+                console.log("Attempting to create reseller user in Firebase Auth...");
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                console.log("Reseller user created in Firebase Auth with UID:", user.uid);
+
+                const resellerRef = ref(db, `resellers/${user.uid}`); // Use real UID
+                const snapshot = await get(resellerRef);
+                if (snapshot.exists()) {
+                    alert('Erro: Já existe um revendedor com este UID.');
+                    return;
+                }
+
+                console.log("Setting reseller data in Firebase Database...");
+                await set(resellerRef, {
+                    email: email,
+                    credits_total: credits,
+                    credits_used: 0,
+                    createdAt: new Date().toISOString()
+                });
+                console.log("Reseller data set in Firebase Database.");
+                alert('Revendedor criado com sucesso!');
+                createResellerModal.hide();
+                document.getElementById('create-reseller-form').reset();
+                loadResellers();
+            } catch (error) {
+                console.error('Error creating reseller:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('Erro: Este e-mail (nome de usuário) já está em uso.');
+                } else {
+                    alert('Erro ao criar revendedor: ' + error.message);
+                }
+            }
+        });
+
+        // Reset Password
+        document.getElementById('reset-password-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const userId = document.getElementById('reset-username-input').value;
+            const newPassword = document.getElementById('new-user-password').value;
+            console.log(`Resetting password for user: ${userId}`);
+            alert('Funcionalidade de reset de senha requer backend com Firebase Admin SDK.');
+            resetPasswordModal.hide();
+            // Note: Client-side password reset is not secure. Use Firebase Admin SDK on a backend server.
+        });
+
+        // Add Credits
+        window.openAddCreditsModal = resellerId => {
+            console.log(`Opening add credits modal for reseller: ${resellerId}`);
+            document.getElementById('add-credits-reseller-id').value = resellerId;
+            addCreditsModal.show();
+        };
+        document.getElementById('add-credits-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const resellerId = document.getElementById('add-credits-reseller-id').value;
+            const credits = parseInt(document.getElementById('add-credits-amount').value);
+            console.log(`Adding ${credits} credits to reseller: ${resellerId}`);
+            if (credits && !isNaN(credits)) {
+                const resellerRef = ref(db, `resellers/${resellerId}`);
+                const snapshot = await get(resellerRef);
+                const currentCredits = snapshot.val().credits_total || 0;
+                await update(resellerRef, { credits_total: currentCredits + credits });
+                alert('Créditos adicionados com sucesso!');
+                addCreditsModal.hide();
+                document.getElementById('add-credits-form').reset();
+            }
+        });
+
+        // Add Credits
+        window.openAddCreditsModal = resellerId => {
+            console.log(`Opening add credits modal for reseller: ${resellerId}`);
+            document.getElementById('add-credits-reseller-id').value = resellerId;
+            addCreditsModal.show();
+        };
+        document.getElementById('add-credits-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const resellerId = document.getElementById('add-credits-reseller-id').value;
+            const credits = parseInt(document.getElementById('add-credits-amount').value);
+            console.log(`Adding ${credits} credits to reseller: ${resellerId}`);
+            if (credits && !isNaN(credits)) {
+                const resellerRef = ref(db, `resellers/${resellerId}`);
+                const snapshot = await get(resellerRef);
+                const currentCredits = snapshot.val().credits_total || 0;
+                await update(resellerRef, { credits_total: currentCredits + credits });
+                alert('Créditos adicionados com sucesso!');
+                addCreditsModal.hide();
+                document.getElementById('add-credits-form').reset();
+            }
+        });
+
+        // Function to update credits cost display for single user creation
+        function updateCreditsCostDisplay() {
+            const isLifetime = document.getElementById('lifetime-account').checked;
+            const durationValue = parseInt(document.getElementById('duration-value').value) || 0;
+            let creditsCost = 0;
+
+            if (isLifetime) {
+                creditsCost = 15; // New lifetime cost
+            } else {
+                if (durationValue <= 0) {
+                    creditsCost = 0;
+                } else if (durationValue == 1) {
+                    creditsCost = 2;
+                } else if (durationValue <= 3) {
+                    creditsCost = 4;
+                } else if (durationValue <= 6) {
+                    creditsCost = 7;
+                } else if (durationValue <= 12) {
+                    creditsCost = 10;
+                } else { // Cap at 12 months
+                    creditsCost = 10; // Cost for 12 months
+                }
+            }
+            document.getElementById('credits-cost').textContent = creditsCost;
+        }
+
+        // Event listeners for single user credits cost display
+        document.getElementById('duration-value').addEventListener('input', updateCreditsCostDisplay);
+        document.getElementById('duration-unit').addEventListener('change', updateCreditsCostDisplay);
+        document.getElementById('lifetime-account').addEventListener('change', () => {
+            const isLifetime = document.getElementById('lifetime-account').checked;
+            document.getElementById('duration-value').disabled = isLifetime;
+            document.getElementById('duration-unit').disabled = isLifetime;
+            updateCreditsCostDisplay();
+        });
+
+        // Call on modal show to initialize
+        document.getElementById('create-user-modal').addEventListener('show.bs.modal', () => {
+            document.getElementById('lifetime-account').checked = false; // Reset checkbox
+            document.getElementById('duration-value').disabled = false; // Enable duration inputs
+            document.getElementById('duration-unit').disabled = false;
+            updateCreditsCostDisplay();
+        });
+
+        // Delete Reseller
+        window.deleteReseller = async resellerId => {
+            console.log(`Deleting reseller: ${resellerId}`);
+            if (!confirm('Tem certeza que deseja excluir este revendedor?')) return;
+            await remove(ref(db, `resellers/${resellerId}`));
+            // Note: Also delete Firebase Auth user via Admin SDK in production
+            alert('Revendedor excluído com sucesso!');
+        };
+    </script>
+</body>
+</html>
