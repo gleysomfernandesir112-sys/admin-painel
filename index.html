@@ -13,28 +13,25 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Dark Theme Variables */
         :root {
-            --primary-color: #4CAF50; /* Green accent */
-            --secondary-color: #388E3C; /* Darker green */
-            --sidebar-bg: #212121; /* Dark gray */
-            --card-bg: #303030; /* Dark card background */
-            --text-primary: #E0E0E0; /* Light gray text */
-            --text-secondary: #B0B0B0; /* Medium gray text */
-            --border-color: #424242; /* Dark border */
+            --primary-color: #4CAF50;
+            --secondary-color: #388E3C;
+            --sidebar-bg: #212121;
+            --card-bg: #303030;
+            --text-primary: #E0E0E0;
+            --text-secondary: #B0B0B0;
+            --border-color: #424242;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             --shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.4);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #1E1E1E; /* Dark background */
+            background-color: #1E1E1E;
             color: var(--text-primary);
-            overflow-x: hidden;
             margin: 0;
         }
 
-        /* Login View */
         #login-view {
             height: 100vh;
             display: flex;
@@ -79,7 +76,6 @@
             background: var(--secondary-color);
         }
 
-        /* Sidebar */
         .sidebar {
             width: 280px;
             height: 100vh;
@@ -117,12 +113,6 @@
             transform: translateX(4px);
         }
 
-        .sidebar .nav-link i {
-            margin-right: 0.75rem;
-            width: 20px;
-        }
-
-        /* Main Content */
         .main-content {
             margin-left: 0;
             padding: 2rem;
@@ -135,7 +125,6 @@
             }
         }
 
-        /* Cards */
         .card {
             background: var(--card-bg);
             border-radius: 0.75rem;
@@ -150,13 +139,6 @@
             transform: translateY(-2px);
         }
 
-        .card h2 {
-            color: var(--text-primary);
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        /* Buttons */
         .btn {
             border-radius: 0.5rem;
             padding: 0.5rem 1rem;
@@ -175,63 +157,6 @@
             transform: translateY(-1px);
         }
 
-        .btn-danger {
-            background: #D32F2F;
-            border: none;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #B71C1C;
-        }
-
-        /* Tables */
-        .table {
-            background: var(--card-bg);
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-
-        .table th {
-            background: var(--primary-color);
-            color: white;
-            font-weight: 600;
-            padding: 1rem;
-            border: none;
-        }
-
-        .table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-        }
-
-        /* Modal */
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            box-shadow: var(--shadow-hover);
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--border-color);
-            background: #424242;
-            border-radius: 1rem 1rem 0 0;
-        }
-
-        .form-control {
-            background: #424242;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
-        }
-
-        /* Responsive Design */
         @media (max-width: 767px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -239,22 +164,6 @@
             .main-content {
                 padding: 1rem;
             }
-            h1 {
-                font-size: 1.75rem;
-            }
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-button {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        /* Chart */
-        #users-by-creator-chart {
-            max-height: 300px;
         }
     </style>
 </head>
@@ -282,10 +191,10 @@
             </div>
         </div>
 
-        <!-- Admin Dashboard View -->
+        <!-- Admin Dashboard View (simplified for testing) -->
         <div id="admin-dashboard-view" class="hidden flex flex-col md:flex-row min-h-screen">
-            <button id="mobile-menu-button-admin" class="md:hidden p-3 absolute top-4 left-4 z-50 mobile-menu-button">
-                <i class="bi bi-list text-xl"></i>
+            <button id="mobile-menu-button-admin" class="md:hidden p-3 absolute top-4 left-4 z-50 bg-gray-800 border border-gray-600 rounded-lg">
+                <i class="bi bi-list text-xl text-gray-200"></i>
             </button>
             <div id="mobile-sidebar-overlay-admin" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
             <aside id="sidebar-menu-admin" class="sidebar">
@@ -299,7 +208,7 @@
                         <li><a href="#" data-view="resellers" class="nav-link block"><i class="bi bi-people"></i>Revendedores</a></li>
                     </ul>
                 </nav>
-                <a href="#" id="logout-button" class="block mt-auto py-2 bg-red-600 rounded-lg flex items-center justify-center btn btn-danger">Sair</a>
+                <a href="#" id="logout-button" class="block mt-auto py-2 bg-red-600 rounded-lg flex items-center justify-center">Sair</a>
             </aside>
             <main class="main-content">
                 <header class="mb-8">
@@ -308,95 +217,68 @@
                         Dashboard
                     </h1>
                 </header>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="card">
-                        <h2 class="text-xl font-semibold flex items-center mb-4">
-                            <i class="bi bi-people-fill mr-2"></i>
-                            Total de Usuários
-                        </h2>
-                        <p id="total-users-count" class="text-4xl font-bold">0</p>
-                    </div>
-                    <div class="card">
-                        <h2 class="text-xl font-semibold flex items-center mb-4">
-                            <i class="bi bi-credit-card-fill mr-2"></i>
-                            Créditos
-                        </h2>
-                        <p class="text-4xl font-bold">Infinito (∞)</p>
-                    </div>
-                </div>
                 <div class="card">
-                    <h2 class="text-xl font-semibold mb-6 flex items-center">
-                        <i class="bi bi-gear-fill mr-2"></i>
-                        Gerenciamento de Usuários
-                    </h2>
-                    <div class="mb-6">
-                        <button id="open-create-user-modal" class="btn btn-primary mr-2"><i class="bi bi-plus-circle mr-1"></i>Criar Usuário</button>
-                        <button id="generate-test-account-admin" class="btn btn-info mr-2"><i class="bi bi-magic mr-1"></i>Gerar Teste</button>
-                        <button id="open-bulk-create-modal" class="btn btn-success"><i class="bi bi-arrow-repeat mr-1"></i>Criar em Massa</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="table w-full">
-                            <thead>
-                                <tr>
-                                    <th>Usuário</th>
-                                    <th>Tipo</th>
-                                    <th>Expiração</th>
-                                    <th>Criado por</th>
-                                    <th>Status</th>
-                                    <th>Criado em</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body"></tbody>
-                        </table>
-                    </div>
+                    <h2 class="text-xl font-semibold mb-6">Test Dashboard Content</h2>
+                    <p>Login successful content will appear here.</p>
                 </div>
             </main>
-        </div>
-
-        <!-- Other views (reseller, resellers) and modals remain similar, adjusted for dark theme -->
-        <!-- Truncated for brevity; add them back with the same CSS adjustments -->
-
-        <!-- Test Account Modal (example) -->
-        <div class="modal fade" id="test-account-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title font-semibold flex items-center">
-                            <i class="bi bi-magic mr-2"></i>
-                            Conta de Teste Gerada!
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="text-center mb-4">
-                            <i class="bi bi-check-circle-fill text-green-500" style="font-size: 4rem;"></i>
-                            <p class="mt-3 text-green-500 font-semibold">Conta criada com sucesso por 3 horas!</p>
-                        </div>
-                        <div class="bg-gray-800 p-3 rounded-lg">
-                            <p><strong>Usuário:</strong> <span id="test-username-display"></span></p>
-                            <p><strong>Senha:</strong> <span id="test-password-display"></span></p>
-                            <p><strong>Expiração:</strong> 3 horas a partir de agora.</p>
-                            <p><strong>Acesso:</strong> <a href="http://web2.fasthub.cloud" target="_blank" class="text-green-400">http://web2.fasthub.cloud</a></p>
-                        </div>
-                        <div class="d-grid gap-2 mt-4">
-                            <button id="copy-test-account" class="btn btn-primary"><i class="bi bi-copy mr-1"></i>Copiar Detalhes</button>
-                            <button id="share-test-account" class="btn btn-success"><i class="bi bi-share mr-1"></i>Compartilhar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Placeholder for Firebase and custom JS -->
+    <!-- Firebase Initialization -->
     <script type="module" src="firebase-init.js"></script>
     <script type="module">
-        // Minimal JS to initialize; re-add full script from previous response
-        console.log('App initialized at 10:44 PM -03, September 08, 2025');
-        // Add event listeners and functions here (e.g., copyToClipboard from previous response)
+        // Import Firebase functions
+        import { initializeApp, auth, onAuthStateChanged, signInWithEmailAndPassword } from './firebase-init.js';
+
+        // DOM Elements
+        const loginView = document.getElementById('login-view');
+        const adminDashboardView = document.getElementById('admin-dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const errorMessage = document.getElementById('error-message');
+
+        // View Management
+        function showView(viewId) {
+            loginView.classList.add('hidden');
+            adminDashboardView.classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        // Authentication State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('User logged in:', user.email);
+                showView('admin-dashboard-view');
+            } else {
+                console.log('No user logged in');
+                showView('login-view');
+            }
+        });
+
+        // Login Form Handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = usernameInput.value.trim();
+            const password = passwordInput.value;
+            errorMessage.classList.add('hidden');
+
+            try {
+                console.log('Attempting login with:', email);
+                await signInWithEmailAndPassword(auth, email, password);
+                console.log('Login successful');
+            } catch (error) {
+                console.error('Login failed:', error);
+                errorMessage.textContent = 'Usuário ou senha inválidos.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Initialize console log with current date and time
+        console.log('App initialized at 10:47 PM -03, September 08, 2025');
     </script>
 </body>
 </html>
