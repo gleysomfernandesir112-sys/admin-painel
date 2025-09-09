@@ -319,6 +319,17 @@
             background: var(--card-bg);
             border-top: 1px solid var(--border-color);
         }
+
+        /* Access link emphasis */
+        .access-link {
+            font-weight: bold;
+            color: #ef4444;
+            text-decoration: none;
+        }
+
+        .access-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -360,6 +371,11 @@
                     <i class="bi bi-house-door-fill mr-2"></i>
                     Painel Hub Admin
                 </h2>
+                <!-- Access Links Note -->
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
+                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
+                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <nav>
                     <ul>
                         <li><a href="#" data-view="admin-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
@@ -369,6 +385,11 @@
                 <a href="#" id="logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
             <main class="main-content p-6 bg-gray-50">
+                <!-- Access Links Note in Header -->
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
+                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
                         <i class="bi bi-speedometer2 mr-3 text-blue-600"></i>
@@ -464,6 +485,11 @@
                     <i class="bi bi-shop-window mr-2"></i>
                     Painel Hub Revendedor
                 </h2>
+                <!-- Access Links Note -->
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
+                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
+                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <nav>
                     <ul>
                         <li><a href="#" data-view="reseller-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
@@ -472,6 +498,11 @@
                 <a href="#" id="reseller-logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
             <main class="main-content p-6 bg-gray-50">
+                <!-- Access Links Note in Header -->
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
+                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
                         <i class="bi bi-shop mr-3 text-blue-600"></i>
@@ -537,6 +568,11 @@
                     <i class="bi bi-house-door-fill mr-2"></i>
                     Painel Hub Admin
                 </h2>
+                <!-- Access Links Note -->
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
+                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
+                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <nav>
                     <ul>
                         <li><a href="#" data-view="admin-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
@@ -546,6 +582,11 @@
                 <a href="#" id="resellers-logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
             <main class="main-content p-6 bg-gray-50">
+                <!-- Access Links Note in Header -->
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
+                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
                         <i class="bi bi-people-fill mr-3 text-blue-600"></i>
@@ -667,6 +708,39 @@
             </div>
         </div>
 
+        <!-- Test Account Modal -->
+        <div class="modal fade" id="test-account-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-info bg-opacity-10 border-info">
+                        <h5 class="modal-title text-info font-semibold flex items-center">
+                            <i class="bi bi-magic mr-2"></i>
+                            Conta de Teste Gerada!
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                            <p class="mt-3 text-success font-semibold">Conta criada com sucesso por 3 horas!</p>
+                        </div>
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">Detalhes da Conta:</h6>
+                            <p><strong>Usuário:</strong> <span id="test-username-display"></span></p>
+                            <p><strong>Senha:</strong> <span id="test-password-display"></span></p>
+                            <p><strong>Expiração:</strong> 3 horas a partir de agora.</p>
+                            <hr>
+                            <p class="mb-0"><strong>Acesso ao Site:</strong> Acesse via <a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="copy-test-account" class="btn btn-primary"><i class="bi bi-copy mr-1"></i>Copiar Detalhes</button>
+                            <button id="share-test-account" class="btn btn-success"><i class="bi bi-share mr-1"></i>Compartilhar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Create Reseller Modal -->
         <div class="modal fade" id="create-reseller-modal" tabindex="-1">
             <div class="modal-dialog">
@@ -781,6 +855,7 @@
         const createResellerModal = new bootstrap.Modal(document.getElementById('create-reseller-modal'));
         const resetPasswordModal = new bootstrap.Modal(document.getElementById('reset-password-modal'));
         const addCreditsModal = new bootstrap.Modal(document.getElementById('add-credits-modal'));
+        const testAccountModal = new bootstrap.Modal(document.getElementById('test-account-modal'));
 
         // Authentication State
         onAuthStateChanged(auth, user => {
@@ -1211,7 +1286,7 @@
             }
         };
 
-        // Generate Test Account
+        // Generate Test Account - Fixed to use temporary app to prevent logout
         async function generateTestAccount() {
             if (!confirm('Gerar uma conta de teste gratuita por 3 horas?')) return;
 
@@ -1224,9 +1299,23 @@
             const expirationDate = new Date();
             expirationDate.setHours(expirationDate.getHours() + 3);
 
+            // Use temporary app to avoid affecting main auth session
+            const firebaseConfig = {
+                apiKey: "AIzaSyCY9sq12w7H9X3hm9FLa_KkazKONpm1nJE",
+                authDomain: "fasthub-9a206.firebaseapp.com",
+                databaseURL: "https://fasthub-9a206-default-rtdb.firebaseio.com",
+                projectId: "fasthub-9a206",
+                storageBucket: "fasthub-9a206.appspot.com",
+                messagingSenderId: "685686875831",
+                appId: "1:685686875831:web:a31c42df4b9f6bd7b88f32"
+            };
+            const tempAppName = 'secondary-app-' + Date.now();
+            const tempApp = initializeApp(firebaseConfig, tempAppName);
+            const tempAuth = getAuth(tempApp);
+
             try {
                 console.log(`Attempting to create test user: ${email}`);
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
                 const user = userCredential.user;
                 console.log("Test user created in Firebase Auth with UID:", user.uid);
 
@@ -1244,7 +1333,10 @@
                 await set(userRef, userData);
                 console.log("Test user data set in Firebase Database.");
 
-                alert(`Conta de teste criada com sucesso!\n\nUsuário: ${username}\nSenha: ${password}`);
+                // Show modal instead of alert
+                document.getElementById('test-username-display').textContent = username;
+                document.getElementById('test-password-display').textContent = password;
+                testAccountModal.show();
                 
                 // Recarregar o dashboard para mostrar o novo usuário
                 if (isReseller) {
@@ -1256,8 +1348,38 @@
             } catch (error) {
                 console.error('Error creating test user:', error);
                 alert('Erro ao criar conta de teste: ' + error.message);
+            } finally {
+                // Clean up the temporary app
+                await deleteApp(tempApp);
+                console.log("Temporary app deleted.");
             }
         }
+
+        // Test Account Modal Handlers
+        document.getElementById('copy-test-account').addEventListener('click', () => {
+            const username = document.getElementById('test-username-display').textContent;
+            const password = document.getElementById('test-password-display').textContent;
+            const text = `Conta de Teste FastHub Cloud\n\nUsuário: ${username}\nSenha: ${password}\n\nAcesse via: http://web2.fasthub.cloud (Sempre use http:// para evitar problemas!)\n\nExpiração: 3 horas.`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Detalhes copiados para a área de transferência!');
+            });
+        });
+
+        document.getElementById('share-test-account').addEventListener('click', () => {
+            const username = document.getElementById('test-username-display').textContent;
+            const password = document.getElementById('test-password-display').textContent;
+            const text = `Conta de Teste FastHub Cloud\n\nUsuário: ${username}\nSenha: ${password}\n\nAcesse via: http://web2.fasthub.cloud (Sempre use http:// para evitar problemas!)\n\nExpiração: 3 horas.`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Conta de Teste FastHub',
+                    text: text
+                });
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Detalhes copiados para compartilhar!');
+                });
+            }
+        });
 
         document.getElementById('generate-test-account-admin').addEventListener('click', generateTestAccount);
         document.getElementById('generate-test-account-reseller').addEventListener('click', generateTestAccount);
@@ -1421,11 +1543,23 @@
             
             for (const acc of accounts) {
                 try {
-                    // 1. Criar usuário no Auth
-                    const userCredential = await createUserWithEmailAndPassword(auth, acc.email, acc.password);
+                    // Use temporary app for bulk too, to avoid issues
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyCY9sq12w7H9X3hm9FLa_KkazKONpm1nJE",
+                        authDomain: "fasthub-9a206.firebaseapp.com",
+                        databaseURL: "https://fasthub-9a206-default-rtdb.firebaseio.com",
+                        projectId: "fasthub-9a206",
+                        storageBucket: "fasthub-9a206.appspot.com",
+                        messagingSenderId: "685686875831",
+                        appId: "1:685686875831:web:a31c42df4b9f6bd7b88f32"
+                    };
+                    const tempAppName = 'bulk-app-' + Date.now() + '-' + i;
+                    const tempApp = initializeApp(firebaseConfig, tempAppName);
+                    const tempAuth = getAuth(tempApp);
+
+                    const userCredential = await createUserWithEmailAndPassword(tempAuth, acc.email, acc.password);
                     const user = userCredential.user;
 
-                    // 2. Usar o UID real para a referência do DB
                     const userRef = ref(db, `users/${user.uid}`);
                     
                     const userData = {
@@ -1440,8 +1574,8 @@
                         userData.expirationDate = acc.expirationDate;
                     }
 
-                    // 3. Salvar os dados no DB com o UID correto
                     await set(userRef, userData);
+                    await deleteApp(tempApp);
 
                 } catch (error) {
                     console.error(`Erro ao criar usuário em massa (${acc.email}):`, error.message);
@@ -1542,28 +1676,6 @@
             alert('Funcionalidade de reset de senha requer backend com Firebase Admin SDK.');
             resetPasswordModal.hide();
             // Note: Client-side password reset is not secure. Use Firebase Admin SDK on a backend server.
-        });
-
-        // Add Credits
-        window.openAddCreditsModal = resellerId => {
-            console.log(`Opening add credits modal for reseller: ${resellerId}`);
-            document.getElementById('add-credits-reseller-id').value = resellerId;
-            addCreditsModal.show();
-        };
-        document.getElementById('add-credits-form').addEventListener('submit', async e => {
-            e.preventDefault();
-            const resellerId = document.getElementById('add-credits-reseller-id').value;
-            const credits = parseInt(document.getElementById('add-credits-amount').value);
-            console.log(`Adding ${credits} credits to reseller: ${resellerId}`);
-            if (credits && !isNaN(credits)) {
-                const resellerRef = ref(db, `resellers/${resellerId}`);
-                const snapshot = await get(resellerRef);
-                const currentCredits = snapshot.val().credits_total || 0;
-                await update(resellerRef, { credits_total: currentCredits + credits });
-                alert('Créditos adicionados com sucesso!');
-                addCreditsModal.hide();
-                document.getElementById('add-credits-form').reset();
-            }
         });
 
         // Add Credits
