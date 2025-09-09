@@ -157,7 +157,7 @@
                         <button id="open-bulk-create-modal" class="btn btn-success">Criar em Massa</button>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full hidden md:table">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -169,8 +169,11 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="users-table-body"></tbody>
+                            <tbody id="users-table-body-desktop"></tbody>
                         </table>
+                        <div id="users-table-body-mobile" class="md:hidden">
+                            <!-- Mobile cards will be rendered here by JS -->
+                        </div>
                     </div>
                 </div>
             </main>
@@ -214,7 +217,7 @@
                     <button id="create-user-btn" class="btn btn-primary mb-4">Criar Usuário</button>
                     <button id="generate-test-account-reseller" class="btn btn-info mb-4">Gerar Teste</button>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full hidden md:table">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -222,11 +225,13 @@
                                     <th>Expiração</th>
                                     <th>Status</th>
                                     <th>Criado em</th>
-                                    <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="reseller-users-table"></tbody>
+                            <tbody id="reseller-users-table-desktop"></tbody>
                         </table>
+                        <div id="reseller-users-table-mobile" class="md:hidden">
+                            <!-- Mobile cards will be rendered here by JS -->
+                        </div>
                     </div>
                 </div>
             </main>
@@ -261,7 +266,7 @@
                     <h2 class="text-xl font-semibold mb-4">Todos os Revendedores</h2>
                     <button id="open-create-reseller-modal" class="btn btn-primary mb-4">Criar Revendedor</button>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full hidden md:table">
                             <thead>
                                 <tr>
                                     <th>Email</th>
@@ -271,8 +276,11 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="resellers-table"></tbody>
+                            <tbody id="resellers-table-desktop"></tbody>
                         </table>
+                        <div id="resellers-table-mobile" class="md:hidden">
+                            <!-- Mobile cards will be rendered here by JS -->
+                        </div>
                     </div>
                 </div>
             </main>
@@ -291,15 +299,18 @@
                 <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                     <h2 class="text-xl font-semibold mb-4">Clientes por Revendedor</h2>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full hidden md:table">
                             <thead>
                                 <tr>
                                     <th>Revendedor</th>
                                     <th>Clientes Ativos</th>
                                 </tr>
                             </thead>
-                            <tbody id="stats-reseller-table-body"></tbody>
+                            <tbody id="stats-reseller-table-body-desktop"></tbody>
                         </table>
+                        <div id="stats-reseller-table-body-mobile" class="md:hidden">
+                            <!-- Mobile cards will be rendered here by JS -->
+                        </div>
                     </div>
                 </div>
             </main>
@@ -584,8 +595,10 @@
             // Existing users table logic
             onValue(usersRef, async snapshot => {
                 const users = snapshot.val() || {}; // Ensure users is always an object
-                const usersTableBody = document.getElementById('users-table-body');
-                usersTableBody.innerHTML = '';
+                const usersTableBodyDesktop = document.getElementById('users-table-body-desktop');
+                const usersTableBodyMobile = document.getElementById('users-table-body-mobile');
+                usersTableBodyDesktop.innerHTML = '';
+                usersTableBodyMobile.innerHTML = '';
                 document.getElementById('total-users-count').textContent = Object.keys(users).length;
 
                 if (Object.keys(users).length > 0) {
@@ -595,7 +608,8 @@
                         const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
                         const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
 
-                        const row = `<tr>
+                        // Desktop row
+                        const desktopRow = `<tr>
                             <td>${user.email}</td>
                             <td>${accountTypeDisplay}</td>
                             <td>${expirationDisplay}</td>
@@ -609,10 +623,29 @@
                                 <button class="btn btn-danger btn-sm" onclick="handleAction('delete', '${uid}', '${user.createdBy || ''}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                             </td>
                         </tr>`;
-                        usersTableBody.innerHTML += row;
+                        usersTableBodyDesktop.innerHTML += desktopRow;
+
+                        // Mobile card
+                        const mobileCard = `
+                        <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
+                            <div class="mb-2"><span class="font-semibold">Usuário:</span> ${user.email}</div>
+                            <div class="mb-2"><span class="font-semibold">Tipo:</span> ${accountTypeDisplay}</div>
+                            <div class="mb-2"><span class="font-semibold">Expiração:</span> ${expirationDisplay}</div>
+                            <div class="mb-2"><span class="font-semibold">Criado por:</span> ${createdByDisplay}</div>
+                            <div class="mb-2"><span class="font-semibold">Status:</span> ${statusBadge}</div>
+                            <div class="mb-2"><span class="font-semibold">Criado em:</span> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                            <div class="flex flex-wrap justify-end gap-2 mt-2">
+                                <button class="btn btn-warning btn-sm" onclick="handleAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
+                                <button class="btn btn-info btn-sm" onclick="handleAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
+                                <button class="btn btn-secondary btn-sm" onclick="handleAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="handleAction('delete', '${uid}', '${user.createdBy || ''}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                            </div>
+                        </div>`;
+                        usersTableBodyMobile.innerHTML += mobileCard;
                     });
                 } else {
-                    usersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>'; // Updated colspan
+                    usersTableBodyDesktop.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>';
+                    usersTableBodyMobile.innerHTML = '<div class="text-center p-4">Nenhum usuário encontrado.</div>';
                 }
 
                 // --- STATS LOGIC INTEGRATED HERE ---
@@ -735,8 +768,10 @@
 
             onValue(usersRef, snapshot => {
                 const allUsers = snapshot.val();
-                const usersTableBody = document.getElementById('reseller-users-table');
-                usersTableBody.innerHTML = '';
+                const usersTableBodyDesktop = document.getElementById('reseller-users-table-desktop');
+                const usersTableBodyMobile = document.getElementById('reseller-users-table-mobile');
+                usersTableBodyDesktop.innerHTML = '';
+                usersTableBodyMobile.innerHTML = '';
                 let userCount = 0;
 
                 if (allUsers) {
@@ -747,7 +782,8 @@
                             const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
                             const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
 
-                            const row = `<tr>
+                            // Desktop row
+                            const desktopRow = `<tr>
                                 <td>${user.email}</td>
                                 <td>${accountTypeDisplay}</td>
                                 <td>${expirationDisplay}</td>
@@ -760,17 +796,32 @@
                                     <button class="btn btn-danger btn-sm" onclick="handleResellerAction('delete', '${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                                 </td>
                             </tr>`;
-                            usersTableBody.innerHTML += row;
+                            usersTableBodyDesktop.innerHTML += desktopRow;
+
+                            // Mobile card
+                            const mobileCard = `
+                            <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
+                                <div class="mb-2"><span class="font-semibold">Usuário:</span> ${user.email}</div>
+                                <div class="mb-2"><span class="font-semibold">Tipo:</span> ${accountTypeDisplay}</div>
+                                <div class="mb-2"><span class="font-semibold">Expiração:</span> ${expirationDisplay}</div>
+                                <div class="mb-2"><span class="font-semibold">Status:</span> ${statusBadge}</div>
+                                <div class="mb-2"><span class="font-semibold">Criado em:</span> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                                <div class="flex flex-wrap justify-end gap-2 mt-2">
+                                    <button class="btn btn-warning btn-sm" onclick="handleResellerAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
+                                    <button class="btn btn-info btn-sm" onclick="handleResellerAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
+                                    <button class="btn btn-secondary btn-sm" onclick="handleResellerAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="handleResellerAction('delete', '${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                                </div>
+                            </div>`;
+                            usersTableBodyMobile.innerHTML += mobileCard;
                         }
                     });
                 }
                 document.getElementById('reseller-users-count').textContent = userCount;
                 if (userCount === 0) {
-                    usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Você ainda não criou nenhum usuário.</td></tr>'; // Updated colspan
+                    usersTableBodyDesktop.innerHTML = '<tr><td colspan="6" class="text-center">Você ainda não criou nenhum usuário.</td></tr>';
+                    usersTableBodyMobile.innerHTML = '<div class="text-center p-4">Você ainda não criou nenhum usuário.</div>';
                 }
-            }, error => {
-                console.error('Error loading reseller users:', error);
-            });
         }
 
         // Load Resellers
@@ -778,15 +829,20 @@
             console.log('Loading resellers');
             const resellersRef = ref(db, 'resellers');
             onValue(resellersRef, snapshot => {
+                onValue(resellersRef, snapshot => {
                 const resellers = snapshot.val();
-                const resellersTableBody = document.getElementById('resellers-table');
-                resellersTableBody.innerHTML = '';
+                const resellersTableBodyDesktop = document.getElementById('resellers-table-desktop');
+                const resellersTableBodyMobile = document.getElementById('resellers-table-mobile');
+                resellersTableBodyDesktop.innerHTML = '';
+                resellersTableBodyMobile.innerHTML = '';
 
                 if (resellers) {
                     Object.entries(resellers).forEach(([uid, reseller]) => {
                         const creditsUsed = reseller.credits_used || 0;
                         const creditsTotal = reseller.credits_total || 0;
-                        const row = `<tr>
+
+                        // Desktop row
+                        const desktopRow = `<tr>
                             <td>${reseller.email}</td>
                             <td>${creditsUsed} / ${creditsTotal}</td>
                             <td>${creditsUsed}</td>
@@ -796,10 +852,25 @@
                                 <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                             </td>
                         </tr>`;
-                        resellersTableBody.innerHTML += row;
+                        resellersTableBodyDesktop.innerHTML += desktopRow;
+
+                        // Mobile card
+                        const mobileCard = `
+                        <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
+                            <div class="mb-2"><span class="font-semibold">Email:</span> ${reseller.email}</div>
+                            <div class="mb-2"><span class="font-semibold">Créditos (Usados/Total):</span> ${creditsUsed} / ${creditsTotal}</div>
+                            <div class="mb-2"><span class="font-semibold">Usuários Criados:</span> ${creditsUsed}</div>
+                            <div class="mb-2"><span class="font-semibold">Data de Criação:</span> ${new Date(reseller.createdAt).toLocaleDateString()}</div>
+                            <div class="flex flex-wrap justify-end gap-2 mt-2">
+                                <button class="btn btn-info btn-sm" onclick="openAddCreditsModal('${uid}')" title="Adicionar Créditos"><i class="bi bi-plus-circle-fill"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
+                            </div>
+                        </div>`;
+                        resellersTableBodyMobile.innerHTML += mobileCard;
                     });
                 } else {
-                    resellersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum revendedor encontrado.</td></tr>';
+                    resellersTableBodyDesktop.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum revendedor encontrado.</td></tr>';
+                    resellersTableBodyMobile.innerHTML = '<div class="text-center p-4">Nenhum revendedor encontrado.</div>';
                 }
             }, error => {
                 console.error('Error loading resellers:', error);
@@ -841,19 +912,31 @@
                     }
                 }
 
-                const tableBody = document.getElementById('stats-reseller-table-body');
-                tableBody.innerHTML = '';
+                const tableBodyDesktop = document.getElementById('stats-reseller-table-body-desktop');
+                const tableBodyMobile = document.getElementById('stats-reseller-table-body-mobile');
+                tableBodyDesktop.innerHTML = '';
+                tableBodyMobile.innerHTML = '';
                 Object.values(stats).sort((a, b) => b.count - a.count).forEach(data => {
-                    const row = `<tr>
+                    // Desktop row
+                    const desktopRow = `<tr>
                         <td>${data.name}</td>
                         <td>${data.count}</td>
                     </tr>`;
-                    tableBody.innerHTML += row;
+                    tableBodyDesktop.innerHTML += desktopRow;
+
+                    // Mobile card
+                    const mobileCard = `
+                    <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
+                        <div class="mb-2"><span class="font-semibold">Revendedor:</span> ${data.name}</div>
+                        <div class="mb-2"><span class="font-semibold">Clientes Ativos:</span> ${data.count}</div>
+                    </div>`;
+                    tableBodyMobile.innerHTML += mobileCard;
                 });
 
             } catch (error) {
                 console.error("Error loading stats dashboard:", error);
-                document.getElementById('stats-reseller-table-body').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
+                document.getElementById('stats-reseller-table-body-desktop').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
+                document.getElementById('stats-reseller-table-body-mobile').innerHTML = '<div class="text-center p-4">Erro ao carregar estatísticas.</div>';
             }
         }
 
