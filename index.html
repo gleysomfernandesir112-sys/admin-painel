@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fasthub Cloud Admin</title>
+    <title>Painel Hub Admin</title>
     <!-- Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Bootstrap CSS -->
@@ -13,9 +13,27 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* From style.css */
+        /* Enhanced styles for modern design */
+        :root {
+            --primary-color: #3b82f6; /* Blue for accents */
+            --secondary-color: #1e40af; /* Darker blue */
+            --sidebar-bg: #1f2937; /* Dark gray-blue */
+            --card-bg: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+            background-color: #f8fafc;
+        }
+
         .bg-image {
-            background-image: url('https://images.unsplash.com/photo-1593464317923-563703ac55b5?q=80&w=1887&auto=format&fit=crop');
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             background-size: cover;
             background-position: center;
         }
@@ -24,120 +42,372 @@
             width: 100%;
             max-width: 400px;
             padding: 2rem;
-        }
-
-        body {
-            overflow-x: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-hover);
         }
 
         .sidebar {
-            width: 250px; /* Default for larger screens */
+            width: 260px; /* Slightly wider for better UX */
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            /* Responsive adjustments */
-            display: none; /* Hidden by default on small screens */
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, #111827 100%);
+            z-index: 1000;
+            /* Responsive: Hidden on small screens */
+            display: none;
         }
-        @media (min-width: 768px) { /* md breakpoint */
+
+        @media (min-width: 768px) {
             .sidebar {
-                display: block; /* Show on medium screens and up */
+                display: block;
             }
         }
 
         .main-content {
-            margin-left: 0; /* Full width on small screens */
-            width: 100%; /* Full width on small screens */
+            margin-left: 0;
+            width: 100%;
+            transition: margin-left 0.3s ease;
         }
-        @media (min-width: 768px) { /* md breakpoint */
+
+        @media (min-width: 768px) {
             .main-content {
-                margin-left: 250px; /* Adjust for sidebar on medium screens and up */
-                width: calc(100% - 250px); /* Adjust for sidebar on medium screens and up */
+                margin-left: 260px;
+                width: calc(100% - 260px);
             }
         }
 
+        .sidebar h2 {
+            color: #ffffff;
+            font-weight: 600;
+            padding: 1rem 0;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 1rem;
+        }
+
         .sidebar .nav-link {
+            color: #d1d5db;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
             color: white;
+            transform: translateX(4px);
         }
 
-        .sidebar .nav-link.active,
-        .sidebar .nav-link:hover {
-            background-color: #495057;
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
         }
 
-        .table .btn {
-            margin-right: 5px;
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .btn-info {
+            background: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+
+        .btn-info:hover {
+            background: #0284c7;
+            border-color: #0284c7;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            border-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+            border-color: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            border-color: #059669;
+        }
+
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+
+        .badge {
+            border-radius: 9999px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .bg-success {
+            background: #10b981 !important;
+        }
+
+        .bg-danger {
+            background: #ef4444 !important;
+        }
+
+        /* Mobile menu improvements */
+        .mobile-menu-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Chart improvements */
+        #users-by-creator-chart {
+            max-height: 300px;
+        }
+
+        /* Modal enhancements */
+        .modal-content {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
+        /* Header improvements */
+        h1 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        /* Grid responsiveness */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 767px) {
+            .grid-cols-1 { grid-template-columns: 1fr; }
+            .grid-cols-2 { grid-template-columns: 1fr; }
+            .grid-cols-3 { grid-template-columns: 1fr; }
+            .main-content { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+        }
+
+        @media (min-width: 768px) {
+            .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
+        /* Custom scrollbar for tables */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* Footer or copyright styling if needed */
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <div id="app" class="min-h-screen">
         <!-- Login View -->
         <div id="login-view" class="flex items-center justify-center h-screen bg-image">
-            <div class="bg-white p-8 rounded-lg shadow-md login-container">
-                <h2 class="text-2xl font-bold mb-6 text-center">Admin Login</h2>
-                <p class="text-center mb-4">Bem-vindo ao painel de controle.</p>
+            <div class="bg-white p-8 rounded-xl shadow-xl login-container">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-800">Painel Hub Admin</h2>
+                    <p class="text-gray-600">Bem-vindo ao painel de controle.</p>
+                </div>
                 <form id="login-form">
                     <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="text" id="username" class="mt-1 block w-full p-2 border border-gray-300 rounded-md form-control" placeholder="Email" required>
+                        <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                        <input type="text" id="username" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Email" required>
                     </div>
-                    <div class="mb-4">
-                        <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
-                        <input type="password" id="password" class="mt-1 block w-full p-2 border border-gray-300 rounded-md form-control" required>
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                        <input type="password" id="password" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 btn btn-primary">Entrar</button>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition-all duration-200">Entrar</button>
                     <p id="error-message" class="text-red-500 text-center mt-4 hidden"></p>
                 </form>
             </div>
         </div>
 
         <!-- Admin Dashboard View -->
-        <div id="admin-dashboard-view" class="hidden flex flex-col md:flex-row">
+        <div id="admin-dashboard-view" class="hidden flex flex-col md:flex-row min-h-screen">
             <!-- Mobile menu button -->
-            <button id="mobile-menu-button-admin" class="md:hidden p-2 text-gray-800 focus:outline-none absolute top-4 left-4 z-50">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+            <button id="mobile-menu-button-admin" class="md:hidden p-3 text-gray-800 focus:outline-none absolute top-4 left-4 z-50 mobile-menu-button">
+                <i class="bi bi-list text-xl"></i>
             </button>
 
             <!-- Off-canvas sidebar overlay -->
             <div id="mobile-sidebar-overlay-admin" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
-            <aside id="sidebar-menu-admin" class="sidebar bg-gray-800 text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50">
-                <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
+            <aside id="sidebar-menu-admin" class="sidebar text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="bi bi-house-door-fill mr-2"></i>
+                    Painel Hub Admin
+                </h2>
                 <nav>
                     <ul>
-                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
-                        <li><a href="#" data-view="resellers" class="nav-link block p-2 hover:bg-gray-700">Revendedores</a></li>
-                        
+                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+                        <li><a href="#" data-view="resellers" class="nav-link block p-3 hover:bg-blue-600"><i class="bi bi-people"></i>Revendedores</a></li>
                     </ul>
                 </nav>
-                <a href="#" id="logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+                <a href="#" id="logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
-            <main class="main-content p-6">
-                <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold">Total de Usuários</h2>
-                        <p id="total-users-count" class="text-2xl">0</p>
+            <main class="main-content p-6 bg-gray-50">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <i class="bi bi-speedometer2 mr-3 text-blue-600"></i>
+                        Dashboard
+                    </h1>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold flex items-center mb-4">
+                            <i class="bi bi-people-fill text-blue-600 mr-2"></i>
+                            Total de Usuários
+                        </h2>
+                        <p id="total-users-count" class="text-4xl font-bold text-gray-800">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold">Créditos</h2>
-                        <p class="text-2xl">Infinito (∞)</p>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold flex items-center mb-4">
+                            <i class="bi bi-credit-card-fill text-green-600 mr-2"></i>
+                            Créditos
+                        </h2>
+                        <p class="text-4xl font-bold text-green-600">Infinito (∞)</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold mb-4">Usuários por Criador</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="bi bi-pie-chart-fill text-purple-600 mr-2"></i>
+                            Usuários por Criador
+                        </h2>
                         <div style="width: 100%; max-width: 400px; margin: auto;">
                             <canvas id="users-by-creator-chart"></canvas>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold mb-4">Detalhes por Criador</h2>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center">
+                            <i class="bi bi-table text-gray-600 mr-2"></i>
+                            Detalhes por Criador
+                        </h2>
                         <div class="overflow-x-auto">
-                            <table class="table w-full">
+                            <table class="table w-full table-striped">
                                 <thead>
                                     <tr>
                                         <th>Criador</th>
@@ -149,15 +419,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <h2 class="text-xl font-semibold mb-4">Gerenciamento de Usuários</h2>
-                    <div class="mb-4">
-                        <button id="open-create-user-modal" class="btn btn-primary mr-2">Criar Usuário</button>
-                        <button id="generate-test-account-admin" class="btn btn-info mr-2">Gerar Teste</button>
-                        <button id="open-bulk-create-modal" class="btn btn-success">Criar em Massa</button>
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="bi bi-gear-fill text-gray-600 mr-2"></i>
+                        Gerenciamento de Usuários
+                    </h2>
+                    <div class="mb-6">
+                        <button id="open-create-user-modal" class="btn btn-primary mr-2"><i class="bi bi-plus-circle mr-1"></i>Criar Usuário</button>
+                        <button id="generate-test-account-admin" class="btn btn-info mr-2"><i class="bi bi-magic mr-1"></i>Gerar Teste</button>
+                        <button id="open-bulk-create-modal" class="btn btn-success"><i class="bi bi-arrow-repeat mr-1"></i>Criar em Massa</button>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full table-striped">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -177,44 +450,61 @@
         </div>
 
         <!-- Reseller Dashboard View -->
-        <div id="reseller-dashboard-view" class="hidden flex flex-col md:flex-row">
+        <div id="reseller-dashboard-view" class="hidden flex flex-col md:flex-row min-h-screen">
             <!-- Mobile menu button -->
-            <button id="mobile-menu-button-reseller" class="md:hidden p-2 text-gray-800 focus:outline-none absolute top-4 left-4 z-50">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+            <button id="mobile-menu-button-reseller" class="md:hidden p-3 text-gray-800 focus:outline-none absolute top-4 left-4 z-50 mobile-menu-button">
+                <i class="bi bi-list text-xl"></i>
             </button>
 
             <!-- Off-canvas sidebar overlay -->
             <div id="mobile-sidebar-overlay-reseller" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
-            <aside id="sidebar-menu-reseller" class="sidebar bg-gray-800 text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50">
-                <h2 class="text-xl font-bold mb-4">Painel Revendedor</h2>
+            <aside id="sidebar-menu-reseller" class="sidebar text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="bi bi-shop-window mr-2"></i>
+                    Painel Hub Revendedor
+                </h2>
                 <nav>
                     <ul>
-                        <li><a href="#" data-view="reseller-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
+                        <li><a href="#" data-view="reseller-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
                     </ul>
                 </nav>
-                <a href="#" id="reseller-logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+                <a href="#" id="reseller-logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
-            <main class="main-content p-6">
-                <h1 class="text-3xl font-bold mb-6">Dashboard do Revendedor</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold">Créditos Restantes</h2>
-                        <p id="credits-remaining" class="text-2xl">0</p>
+            <main class="main-content p-6 bg-gray-50">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <i class="bi bi-shop mr-3 text-blue-600"></i>
+                        Dashboard do Revendedor
+                    </h1>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold flex items-center mb-4">
+                            <i class="bi bi-credit-card-2-front-fill text-blue-600 mr-2"></i>
+                            Créditos Restantes
+                        </h2>
+                        <p id="credits-remaining" class="text-4xl font-bold text-blue-600">0</p>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold">Seus Usuários</h2>
-                        <p id="reseller-users-count" class="text-2xl">0</p>
+                    <div class="card p-6">
+                        <h2 class="text-xl font-semibold flex items-center mb-4">
+                            <i class="bi bi-person-lines-fill text-purple-600 mr-2"></i>
+                            Seus Usuários
+                        </h2>
+                        <p id="reseller-users-count" class="text-4xl font-bold text-purple-600">0</p>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <h2 class="text-xl font-semibold mb-4">Seus Usuários</h2>
-                    <button id="create-user-btn" class="btn btn-primary mb-4">Criar Usuário</button>
-                    <button id="generate-test-account-reseller" class="btn btn-info mb-4">Gerar Teste</button>
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="bi bi-people mr-2 text-gray-600"></i>
+                        Seus Usuários
+                    </h2>
+                    <div class="mb-6">
+                        <button id="create-user-btn" class="btn btn-primary mr-2"><i class="bi bi-plus-circle mr-1"></i>Criar Usuário</button>
+                        <button id="generate-test-account-reseller" class="btn btn-info"><i class="bi bi-magic mr-1"></i>Gerar Teste</button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="table w-full">
+                        <table class="table w-full table-striped">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -233,35 +523,43 @@
         </div>
 
         <!-- Resellers Management View -->
-        <div id="resellers-view" class="hidden flex flex-col md:flex-row">
+        <div id="resellers-view" class="hidden flex flex-col md:flex-row min-h-screen">
             <!-- Mobile menu button -->
-            <button id="mobile-menu-button-resellers" class="md:hidden p-2 text-gray-800 focus:outline-none absolute top-4 left-4 z-50">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
+            <button id="mobile-menu-button-resellers" class="md:hidden p-3 text-gray-800 focus:outline-none absolute top-4 left-4 z-50 mobile-menu-button">
+                <i class="bi bi-list text-xl"></i>
             </button>
 
             <!-- Off-canvas sidebar overlay -->
             <div id="mobile-sidebar-overlay-resellers" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
 
-            <aside id="sidebar-menu-resellers" class="sidebar bg-gray-800 text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50">
-                <h2 class="text-xl font-bold mb-4">Admin Panel</h2>
+            <aside id="sidebar-menu-resellers" class="sidebar text-white h-screen p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+                <h2 class="text-xl font-bold mb-6 flex items-center">
+                    <i class="bi bi-house-door-fill mr-2"></i>
+                    Painel Hub Admin
+                </h2>
                 <nav>
                     <ul>
-                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-2 hover:bg-gray-700">Dashboard</a></li>
-                        <li><a href="#" data-view="resellers" class="nav-link block p-2 hover:bg-gray-700">Revendedores</a></li>
-                        
+                        <li><a href="#" data-view="admin-dashboard" class="nav-link block p-3 hover:bg-blue-600 active:bg-blue-600"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+                        <li><a href="#" data-view="resellers" class="nav-link block p-3 hover:bg-blue-600"><i class="bi bi-people"></i>Revendedores</a></li>
                     </ul>
                 </nav>
-                <a href="#" id="resellers-logout-button" class="block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
+                <a href="#" id="resellers-logout-button" class="block mt-auto p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center btn btn-danger">Sair</a>
             </aside>
-            <main class="main-content p-6">
-                <h1 class="text-3xl font-bold mb-6">Gerenciamento de Revendedores</h1>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <h2 class="text-xl font-semibold mb-4">Todos os Revendedores</h2>
-                    <button id="open-create-reseller-modal" class="btn btn-primary mb-4">Criar Revendedor</button>
+            <main class="main-content p-6 bg-gray-50">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                        <i class="bi bi-people-fill mr-3 text-blue-600"></i>
+                        Gerenciamento de Revendedores
+                    </h1>
+                </header>
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="bi bi-person-plus mr-2 text-green-600"></i>
+                        Todos os Revendedores
+                    </h2>
+                    <button id="open-create-reseller-modal" class="btn btn-primary mb-4"><i class="bi bi-plus-circle mr-1"></i>Criar Revendedor</button>
                     <div class="overflow-x-auto">
-                        <table class="table w-full hidden md:table">
+                        <table class="table w-full table-striped">
                             <thead>
                                 <tr>
                                     <th>Email</th>
@@ -271,41 +569,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="resellers-table-desktop"></tbody>
+                            <tbody id="resellers-table"></tbody>
                         </table>
-                        <div id="resellers-table-mobile" class="md:hidden">
-                            <!-- Mobile cards will be rendered here by JS -->
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-
-        <!-- Create User Modal -->"block mt-4 p-2 bg-red-600 text-white rounded btn btn-danger">Sair</a>
-            </aside>
-            <main class="main-content p-6">
-                <h1 class="text-3xl font-bold mb-6">Estatísticas</h1>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <h2 class="text-xl font-semibold">Total de Clientes</h2>
-                        <p id="stats-total-users" class="text-2xl">0</p>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <h2 class="text-xl font-semibold mb-4">Clientes por Revendedor</h2>
-                    <div class="overflow-x-auto">
-                        <table class="table w-full hidden md:table">
-                            <thead>
-                                <tr>
-                                    <th>Revendedor</th>
-                                    <th>Clientes Ativos</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stats-reseller-table-body-desktop"></tbody>
-                        </table>
-                        <div id="stats-reseller-table-body-mobile" class="md:hidden">
-                            <!-- Mobile cards will be rendered here by JS -->
-                        </div>
                     </div>
                 </div>
             </main>
@@ -315,22 +580,25 @@
         <div class="modal fade" id="create-user-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Criar Novo Usuário</h5>
+                    <div class="modal-header bg-blue-50 border-blue-200">
+                        <h5 class="modal-title text-blue-800 font-semibold flex items-center">
+                            <i class="bi bi-person-plus mr-2"></i>
+                            Criar Novo Usuário
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="create-user-form">
                             <div class="mb-3">
-                                <label for="new-username" class="form-label">Usuário</label>
-                                <input type="text" class="form-control" id="new-username" placeholder="nome (será nome@fasthub.cloud)" required>
+                                <label for="new-username" class="form-label font-semibold">Usuário</label>
+                                <input type="text" class="form-control" id="new-username" placeholder="nome (será nome@painelhub.com)" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-password" class="form-label">Senha</label>
+                                <label for="new-password" class="form-label font-semibold">Senha</label>
                                 <input type="password" class="form-control" id="new-password" required>
                             </div>
                             <div class="mb-3">
-                                <label for="duration-value" class="form-label">Duração (1-12 Meses)</label>
+                                <label for="duration-value" class="form-label font-semibold">Duração (1-12 Meses)</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="duration-value" min="1" max="12" value="1" required>
                                     <select class="form-select" id="duration-unit">
@@ -341,13 +609,13 @@
                             <div class="mb-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="lifetime-account">
-                                    <label class="form-check-label" for="lifetime-account">Conta Vitalícia</label>
+                                    <label class="form-check-label font-semibold" for="lifetime-account">Conta Vitalícia</label>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <p>Custo de Créditos: <span id="credits-cost">0</span></p>
+                            <div class="mb-3 p-3 bg-blue-50 rounded-lg">
+                                <p class="font-semibold text-blue-800">Custo de Créditos: <span id="credits-cost" class="text-blue-600 font-bold">0</span></p>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Criar</button>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-circle mr-1"></i>Criar</button>
                         </form>
                     </div>
                 </div>
@@ -358,38 +626,41 @@
         <div class="modal fade" id="bulk-create-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Criar Usuários em Massa</h5>
+                    <div class="modal-header bg-green-50 border-green-200">
+                        <h5 class="modal-title text-green-800 font-semibold flex items-center">
+                            <i class="bi bi-arrow-repeat mr-2"></i>
+                            Criar Usuários em Massa
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="bulk-create-form">
                             <div class="mb-3">
-                                <label for="bulk-quantity" class="form-label">Quantidade</label>
+                                <label for="bulk-quantity" class="form-label font-semibold">Quantidade</label>
                                 <input type="number" class="form-control" id="bulk-quantity" min="1" required>
                             </div>
                             <div class="mb-3" id="bulk-account-type-group">
-                                <label class="form-label">Tipo de Conta</label>
+                                <label class="form-label font-semibold">Tipo de Conta</label>
                                 <div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="bulkAccountType" id="bulkTempAccount" value="temporary" checked>
-                                        <label class="form-check-label" for="bulkTempAccount">Temporária (1 mês)</label>
+                                        <label class="form-check-label font-semibold" for="bulkTempAccount">Temporária (1 mês)</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="bulkAccountType" id="bulkLifetimeAccount" value="lifetime">
-                                        <label class="form-check-label" for="bulkLifetimeAccount">Vitalícia</label>
+                                        <label class="form-check-label font-semibold" for="bulkLifetimeAccount">Vitalícia</label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <p>Custo Total de Créditos: <span id="bulk-credits-cost">0</span></p>
+                            <div class="mb-3 p-3 bg-green-50 rounded-lg">
+                                <p class="font-semibold text-green-800">Custo Total de Créditos: <span id="bulk-credits-cost" class="text-green-600 font-bold">0</span></p>
                             </div>
-                            <button type="submit" class="btn btn-success w-100">Gerar Contas</button>
+                            <button type="submit" class="btn btn-success w-100"><i class="bi bi-check-circle mr-1"></i>Gerar Contas</button>
                         </form>
                         <div id="generated-accounts" class="mt-3 hidden">
-                            <p class="font-semibold">Contas Geradas:</p>
-                            <pre id="accounts-list" class="bg-light p-2 rounded"></pre>
-                            <button id="copy-accounts" class="btn btn-primary mt-2">Copiar</button>
+                            <p class="font-semibold text-gray-800 mb-2">Contas Geradas:</p>
+                            <pre id="accounts-list" class="bg-gray-100 p-3 rounded-lg overflow-auto text-sm" style="max-height: 200px;"></pre>
+                            <button id="copy-accounts" class="btn btn-primary mt-2 w-100"><i class="bi bi-copy mr-1"></i>Copiar</button>
                         </div>
                     </div>
                 </div>
@@ -400,25 +671,28 @@
         <div class="modal fade" id="create-reseller-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Criar Novo Revendedor</h5>
+                    <div class="modal-header bg-purple-50 border-purple-200">
+                        <h5 class="modal-title text-purple-800 font-semibold flex items-center">
+                            <i class="bi bi-person-plus-fill mr-2"></i>
+                            Criar Novo Revendedor
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="create-reseller-form">
                             <div class="mb-3">
-                                <label for="reseller-email" class="form-label">Email de Login</label>
-                                <input type="text" class="form-control" id="reseller-email" placeholder="nome (será nome@fasthub.cloud)" required>
+                                <label for="reseller-email" class="form-label font-semibold">Email de Login</label>
+                                <input type="text" class="form-control" id="reseller-email" placeholder="nome (será nome@painelhub.com)" required>
                             </div>
                             <div class="mb-3">
-                                <label for="reseller-password" class="form-label">Senha</label>
+                                <label for="reseller-password" class="form-label font-semibold">Senha</label>
                                 <input type="password" class="form-control" id="reseller-password" required>
                             </div>
                             <div class="mb-3">
-                                <label for="reseller-credits" class="form-label">Quantidade de Créditos</label>
+                                <label for="reseller-credits" class="form-label font-semibold">Quantidade de Créditos</label>
                                 <input type="number" class="form-control" id="reseller-credits" min="0" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Criar Revendedor</button>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-circle mr-1"></i>Criar Revendedor</button>
                         </form>
                     </div>
                 </div>
@@ -429,19 +703,22 @@
         <div class="modal fade" id="reset-password-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Resetar Senha</h5>
+                    <div class="modal-header bg-yellow-50 border-yellow-200">
+                        <h5 class="modal-title text-yellow-800 font-semibold flex items-center">
+                            <i class="bi bi-key-fill mr-2"></i>
+                            Resetar Senha
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <p id="reset-username-display"></p>
+                        <p id="reset-username-display" class="font-semibold mb-3"></p>
                         <form id="reset-password-form">
                             <input type="hidden" id="reset-username-input">
                             <div class="mb-3">
-                                <label for="new-user-password" class="form-label">Nova Senha</label>
+                                <label for="new-user-password" class="form-label font-semibold">Nova Senha</label>
                                 <input type="password" class="form-control" id="new-user-password" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Salvar Nova Senha</button>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save mr-1"></i>Salvar Nova Senha</button>
                         </form>
                     </div>
                 </div>
@@ -452,18 +729,21 @@
         <div class="modal fade" id="add-credits-modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Adicionar Créditos</h5>
+                    <div class="modal-header bg-green-50 border-green-200">
+                        <h5 class="modal-title text-green-800 font-semibold flex items-center">
+                            <i class="bi bi-plus-circle-fill mr-2"></i>
+                            Adicionar Créditos
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="add-credits-form">
                             <input type="hidden" id="add-credits-reseller-id">
                             <div class="mb-3">
-                                <label for="add-credits-amount" class="form-label">Quantidade de Créditos</label>
+                                <label for="add-credits-amount" class="form-label font-semibold">Quantidade de Créditos</label>
                                 <input type="number" class="form-control" id="add-credits-amount" min="1" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                            <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-circle mr-1"></i>Adicionar</button>
                         </form>
                     </div>
                 </div>
@@ -741,10 +1021,8 @@
 
             onValue(usersRef, snapshot => {
                 const allUsers = snapshot.val();
-                const usersTableBodyDesktop = document.getElementById('reseller-users-table-desktop');
-                const usersTableBodyMobile = document.getElementById('reseller-users-table-mobile');
-                usersTableBodyDesktop.innerHTML = '';
-                usersTableBodyMobile.innerHTML = '';
+                const usersTableBody = document.getElementById('reseller-users-table');
+                usersTableBody.innerHTML = '';
                 let userCount = 0;
 
                 if (allUsers) {
@@ -755,8 +1033,7 @@
                             const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
                             const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
 
-                            // Desktop row
-                            const desktopRow = `<tr>
+                            const row = `<tr>
                                 <td>${user.email}</td>
                                 <td>${accountTypeDisplay}</td>
                                 <td>${expirationDisplay}</td>
@@ -769,32 +1046,17 @@
                                     <button class="btn btn-danger btn-sm" onclick="handleResellerAction('delete', '${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                                 </td>
                             </tr>`;
-                            usersTableBodyDesktop.innerHTML += desktopRow;
-
-                            // Mobile card
-                            const mobileCard = `
-                            <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
-                                <div class="mb-2"><span class="font-semibold">Usuário:</span> ${user.email}</div>
-                                <div class="mb-2"><span class="font-semibold">Tipo:</span> ${accountTypeDisplay}</div>
-                                <div class="mb-2"><span class="font-semibold">Expiração:</span> ${expirationDisplay}</div>
-                                <div class="mb-2"><span class="font-semibold">Status:</span> ${statusBadge}</div>
-                                <div class="mb-2"><span class="font-semibold">Criado em:</span> ${new Date(user.createdAt).toLocaleDateString()}</div>
-                                <div class="flex flex-wrap justify-end gap-2 mt-2">
-                                    <button class="btn btn-warning btn-sm" onclick="handleResellerAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
-                                    <button class="btn btn-info btn-sm" onclick="handleResellerAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
-                                    <button class="btn btn-secondary btn-sm" onclick="handleResellerAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
-                                    <button class="btn btn-danger btn-sm" onclick="handleResellerAction('delete', '${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </div>`;
-                            usersTableBodyMobile.innerHTML += mobileCard;
+                            usersTableBody.innerHTML += row;
                         }
                     });
                 }
                 document.getElementById('reseller-users-count').textContent = userCount;
                 if (userCount === 0) {
-                    usersTableBodyDesktop.innerHTML = '<tr><td colspan="6" class="text-center">Você ainda não criou nenhum usuário.</td></tr>';
-                    usersTableBodyMobile.innerHTML = '<div class="text-center p-4">Você ainda não criou nenhum usuário.</div>';
+                    usersTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Você ainda não criou nenhum usuário.</td></tr>'; // Updated colspan
                 }
+            }, error => {
+                console.error('Error loading reseller users:', error);
+            });
         }
 
         // Load Resellers
@@ -802,20 +1064,15 @@
             console.log('Loading resellers');
             const resellersRef = ref(db, 'resellers');
             onValue(resellersRef, snapshot => {
-                onValue(resellersRef, snapshot => {
                 const resellers = snapshot.val();
-                const resellersTableBodyDesktop = document.getElementById('resellers-table-desktop');
-                const resellersTableBodyMobile = document.getElementById('resellers-table-mobile');
-                resellersTableBodyDesktop.innerHTML = '';
-                resellersTableBodyMobile.innerHTML = '';
+                const resellersTableBody = document.getElementById('resellers-table');
+                resellersTableBody.innerHTML = '';
 
                 if (resellers) {
                     Object.entries(resellers).forEach(([uid, reseller]) => {
                         const creditsUsed = reseller.credits_used || 0;
                         const creditsTotal = reseller.credits_total || 0;
-
-                        // Desktop row
-                        const desktopRow = `<tr>
+                        const row = `<tr>
                             <td>${reseller.email}</td>
                             <td>${creditsUsed} / ${creditsTotal}</td>
                             <td>${creditsUsed}</td>
@@ -825,25 +1082,10 @@
                                 <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                             </td>
                         </tr>`;
-                        resellersTableBodyDesktop.innerHTML += desktopRow;
-
-                        // Mobile card
-                        const mobileCard = `
-                        <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
-                            <div class="mb-2"><span class="font-semibold">Email:</span> ${reseller.email}</div>
-                            <div class="mb-2"><span class="font-semibold">Créditos (Usados/Total):</span> ${creditsUsed} / ${creditsTotal}</div>
-                            <div class="mb-2"><span class="font-semibold">Usuários Criados:</span> ${creditsUsed}</div>
-                            <div class="mb-2"><span class="font-semibold">Data de Criação:</span> ${new Date(reseller.createdAt).toLocaleDateString()}</div>
-                            <div class="flex flex-wrap justify-end gap-2 mt-2">
-                                <button class="btn btn-info btn-sm" onclick="openAddCreditsModal('${uid}')" title="Adicionar Créditos"><i class="bi bi-plus-circle-fill"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
-                            </div>
-                        </div>`;
-                        resellersTableBodyMobile.innerHTML += mobileCard;
+                        resellersTableBody.innerHTML += row;
                     });
                 } else {
-                    resellersTableBodyDesktop.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum revendedor encontrado.</td></tr>';
-                    resellersTableBodyMobile.innerHTML = '<div class="text-center p-4">Nenhum revendedor encontrado.</div>';
+                    resellersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum revendedor encontrado.</td></tr>';
                 }
             }, error => {
                 console.error('Error loading resellers:', error);
@@ -885,31 +1127,19 @@
                     }
                 }
 
-                const tableBodyDesktop = document.getElementById('stats-reseller-table-body-desktop');
-                const tableBodyMobile = document.getElementById('stats-reseller-table-body-mobile');
-                tableBodyDesktop.innerHTML = '';
-                tableBodyMobile.innerHTML = '';
+                const tableBody = document.getElementById('stats-reseller-table-body');
+                tableBody.innerHTML = '';
                 Object.values(stats).sort((a, b) => b.count - a.count).forEach(data => {
-                    // Desktop row
-                    const desktopRow = `<tr>
+                    const row = `<tr>
                         <td>${data.name}</td>
                         <td>${data.count}</td>
                     </tr>`;
-                    tableBodyDesktop.innerHTML += desktopRow;
-
-                    // Mobile card
-                    const mobileCard = `
-                    <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
-                        <div class="mb-2"><span class="font-semibold">Revendedor:</span> ${data.name}</div>
-                        <div class="mb-2"><span class="font-semibold">Clientes Ativos:</span> ${data.count}</div>
-                    </div>`;
-                    tableBodyMobile.innerHTML += mobileCard;
+                    tableBody.innerHTML += row;
                 });
 
             } catch (error) {
                 console.error("Error loading stats dashboard:", error);
-                document.getElementById('stats-reseller-table-body-desktop').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
-                document.getElementById('stats-reseller-table-body-mobile').innerHTML = '<div class="text-center p-4">Erro ao carregar estatísticas.</div>';
+                document.getElementById('stats-reseller-table-body').innerHTML = '<tr><td colspan="2" class="text-center text-danger">Erro ao carregar estatísticas.</td></tr>';
             }
         }
 
@@ -1411,7 +1641,6 @@
             alert('Revendedor excluído com sucesso!');
         };
 
-        /*
         // Mobile Sidebar Toggle Logic
         function setupMobileSidebar(viewId, menuButtonId, sidebarId, overlayId) {
             const viewElement = document.getElementById(viewId);
@@ -1446,7 +1675,6 @@
         setupMobileSidebar('admin-dashboard-view', 'mobile-menu-button-admin', 'sidebar-menu-admin', 'mobile-sidebar-overlay-admin');
         setupMobileSidebar('reseller-dashboard-view', 'mobile-menu-button-reseller', 'sidebar-menu-reseller', 'mobile-sidebar-overlay-reseller');
         setupMobileSidebar('resellers-view', 'mobile-menu-button-resellers', 'sidebar-menu-resellers', 'mobile-sidebar-overlay-resellers');
-        */
     </script>
 </body>
 </html>
