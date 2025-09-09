@@ -214,7 +214,7 @@
                     <button id="create-user-btn" class="btn btn-primary mb-4">Criar Usuário</button>
                     <button id="generate-test-account-reseller" class="btn btn-info mb-4">Gerar Teste</button>
                     <div class="overflow-x-auto">
-                        <table class="table w-full hidden md:table">
+                        <table class="table w-full">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -222,13 +222,11 @@
                                     <th>Expiração</th>
                                     <th>Status</th>
                                     <th>Criado em</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="reseller-users-table-desktop"></tbody>
+                            <tbody id="reseller-users-table"></tbody>
                         </table>
-                        <div id="reseller-users-table-mobile" class="md:hidden">
-                            <!-- Mobile cards will be rendered here by JS -->
-                        </div>
                     </div>
                 </div>
             </main>
@@ -1413,6 +1411,7 @@
             alert('Revendedor excluído com sucesso!');
         };
 
+        /*
         // Mobile Sidebar Toggle Logic
         function setupMobileSidebar(viewId, menuButtonId, sidebarId, overlayId) {
             const viewElement = document.getElementById(viewId);
@@ -1447,6 +1446,7 @@
         setupMobileSidebar('admin-dashboard-view', 'mobile-menu-button-admin', 'sidebar-menu-admin', 'mobile-sidebar-overlay-admin');
         setupMobileSidebar('reseller-dashboard-view', 'mobile-menu-button-reseller', 'sidebar-menu-reseller', 'mobile-sidebar-overlay-reseller');
         setupMobileSidebar('resellers-view', 'mobile-menu-button-resellers', 'sidebar-menu-resellers', 'mobile-sidebar-overlay-resellers');
+        */
     </script>
 </body>
 </html>
