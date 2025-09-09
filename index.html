@@ -157,7 +157,7 @@
                         <button id="open-bulk-create-modal" class="btn btn-success">Criar em Massa</button>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="table w-full hidden md:table">
+                        <table class="table w-full">
                             <thead>
                                 <tr>
                                     <th>Usuário</th>
@@ -169,11 +169,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="users-table-body-desktop"></tbody>
+                            <tbody id="users-table-body"></tbody>
                         </table>
-                        <div id="users-table-body-mobile" class="md:hidden">
-                            <!-- Mobile cards will be rendered here by JS -->
-                        </div>
                     </div>
                 </div>
             </main>
@@ -595,10 +592,8 @@
             // Existing users table logic
             onValue(usersRef, async snapshot => {
                 const users = snapshot.val() || {}; // Ensure users is always an object
-                const usersTableBodyDesktop = document.getElementById('users-table-body-desktop');
-                const usersTableBodyMobile = document.getElementById('users-table-body-mobile');
-                usersTableBodyDesktop.innerHTML = '';
-                usersTableBodyMobile.innerHTML = '';
+                const usersTableBody = document.getElementById('users-table-body');
+                usersTableBody.innerHTML = '';
                 document.getElementById('total-users-count').textContent = Object.keys(users).length;
 
                 if (Object.keys(users).length > 0) {
@@ -608,8 +603,7 @@
                         const accountTypeDisplay = user.accountType === 'temporary' ? 'Temporária' : (user.accountType === 'lifetime' ? 'Vitalícia' : 'N/A');
                         const expirationDisplay = user.expirationDate ? new Date(user.expirationDate).toLocaleDateString() : 'N/A';
 
-                        // Desktop row
-                        const desktopRow = `<tr>
+                        const row = `<tr>
                             <td>${user.email}</td>
                             <td>${accountTypeDisplay}</td>
                             <td>${expirationDisplay}</td>
@@ -623,29 +617,10 @@
                                 <button class="btn btn-danger btn-sm" onclick="handleAction('delete', '${uid}', '${user.createdBy || ''}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
                             </td>
                         </tr>`;
-                        usersTableBodyDesktop.innerHTML += desktopRow;
-
-                        // Mobile card
-                        const mobileCard = `
-                        <div class="bg-white p-4 rounded-lg shadow-md mb-4 flex flex-col">
-                            <div class="mb-2"><span class="font-semibold">Usuário:</span> ${user.email}</div>
-                            <div class="mb-2"><span class="font-semibold">Tipo:</span> ${accountTypeDisplay}</div>
-                            <div class="mb-2"><span class="font-semibold">Expiração:</span> ${expirationDisplay}</div>
-                            <div class="mb-2"><span class="font-semibold">Criado por:</span> ${createdByDisplay}</div>
-                            <div class="mb-2"><span class="font-semibold">Status:</span> ${statusBadge}</div>
-                            <div class="mb-2"><span class="font-semibold">Criado em:</span> ${new Date(user.createdAt).toLocaleDateString()}</div>
-                            <div class="flex flex-wrap justify-end gap-2 mt-2">
-                                <button class="btn btn-warning btn-sm" onclick="handleAction('resetPassword', '${uid}')" title="Resetar Senha"><i class="bi bi-key-fill"></i></button>
-                                <button class="btn btn-info btn-sm" onclick="handleAction('renew', '${uid}')" title="Renovar Conta"><i class="bi bi-calendar-check-fill"></i></button>
-                                <button class="btn btn-secondary btn-sm" onclick="handleAction('toggleBlock', '${uid}')" title="Bloquear/Desbloquear"><i class="bi bi-slash-circle-fill"></i></button>
-                                <button class="btn btn-danger btn-sm" onclick="handleAction('delete', '${uid}', '${user.createdBy || ''}')" title="Excluir"><i class="bi bi-trash-fill"></i></button>
-                            </div>
-                        </div>`;
-                        usersTableBodyMobile.innerHTML += mobileCard;
+                        usersTableBody.innerHTML += row;
                     });
                 } else {
-                    usersTableBodyDesktop.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>';
-                    usersTableBodyMobile.innerHTML = '<div class="text-center p-4">Nenhum usuário encontrado.</div>';
+                    usersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>'; // Updated colspan
                 }
 
                 // --- STATS LOGIC INTEGRATED HERE ---
