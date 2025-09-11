@@ -472,6 +472,13 @@
                         </div>
                     </div>
                 </div>
+                <div class="card p-6 col-span-1 md:col-span-2">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="bi bi-graph-up text-green-600 mr-2"></i>
+                        Novos Usuários (Últimos 30 dias)
+                    </h2>
+                    <canvas id="admin-new-users-chart"></canvas>
+                </div>
                 <div class="card p-6">
                     <h2 class="text-xl font-semibold mb-6 flex items-center">
                         <i class="bi bi-gear-fill text-gray-600 mr-2"></i>
@@ -589,6 +596,13 @@
                             </table>
                         </div>
                     </div>
+                </div>
+                <div class="card p-6 col-span-1 md:col-span-2">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="bi bi-graph-up text-green-600 mr-2"></i>
+                        Novos Usuários (Últimos 30 dias)
+                    </h2>
+                    <canvas id="reseller-new-users-chart"></canvas>
                 </div>
                 <div class="card p-6">
                     <h2 class="text-xl font-semibold mb-6 flex items-center">
@@ -950,7 +964,9 @@
         let currentAdminPage = 1;
         let allResellerUsers = [];
         let currentResellerPage = 1;
-        const ROWS_PER_PAGE = 15;
+        const ROWS_PER_PAGE = 10;
+        let adminNewUsersChart = null;
+        let resellerNewUsersChart = null;
 
         // --- VIEW MANAGEMENT ---
         const views = {
@@ -1053,6 +1069,7 @@
                 allAdminUsers = Object.entries(snapshot.val() || {}).map(([uid, data]) => ({ uid, ...data }));
                 currentAdminPage = 1;
                 renderAdminUsersTable();
+                renderHistoricalChart('admin-new-users-chart', allAdminUsers, adminNewUsersChart);
             });
         }
 
@@ -1066,6 +1083,7 @@
                     .map(([uid, data]) => ({ uid, ...data }));
                 currentResellerPage = 1;
                 renderResellerUsersTable();
+                renderHistoricalChart('reseller-new-users-chart', allResellerUsers, resellerNewUsersChart);
             });
         }
 
@@ -1174,6 +1192,61 @@
         document.getElementById('admin-user-search').addEventListener('input', () => renderAdminUsersTable());
         document.getElementById('reseller-user-search').addEventListener('input', () => renderResellerUsersTable());
 
+        // --- CHARTING ---
+        function renderHistoricalChart(canvasId, users, chartInstance) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const last30Days = {};
+            const labels = [];
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const a = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                labels.push(a);
+                last30Days[a] = 0;
+            }
+
+            users.forEach(user => {
+                const createdAt = new Date(user.createdAt);
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                if (createdAt >= thirtyDaysAgo) {
+                    const key = createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    if (last30Days[key] !== undefined) {
+                        last30Days[key]++;
+                    }
+                }
+            });
+
+            const data = Object.values(last30Days);
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Novos Usuários',
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
         // --- ACTIONS ---
         window.handleAction = async (action, uid, createdBy) => {
             const userRef = ref(db, `users/${uid}`);
@@ -1223,6 +1296,32 @@
                 showToast('Revendedor excluído do banco de dados.', 'info');
             });
         };
+
+        // --- USER CREATION ---
+        function generateRandomString(length) {
+            return Math.random().toString(36).substring(2, 2 + length);
+        }
+
+        document.getElementById('generate-test-account-admin').addEventListener('click', () => generateTestAccount());
+        document.getElementById('generate-test-account-reseller').addEventListener('click', () => generateTestAccount());
+
+        async function generateTestAccount() {
+            showConfirmation('Gerar uma conta de teste gratuita por 3 horas?', async () => {
+                const username = generateRandomString(8);
+                const password = generateRandomString(8);
+                // ... rest of the function
+            });
+        }
+
+        document.getElementById('create-user-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            let username = document.getElementById('new-username').value.trim();
+            if (!username) {
+                const randomLength = Math.floor(Math.random() * (8 - 5 + 1)) + 5;
+                username = generateRandomString(randomLength);
+            }
+            // ... rest of the function
+        });
 
     </script>
 </body>
