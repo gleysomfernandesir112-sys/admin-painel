@@ -947,7 +947,10 @@
 
         // --- STATE MANAGEMENT ---
         let allAdminUsers = [];
+        let currentAdminPage = 1;
         let allResellerUsers = [];
+        let currentResellerPage = 1;
+        const ROWS_PER_PAGE = 15;
 
         // --- VIEW MANAGEMENT ---
         const views = {
@@ -1048,8 +1051,8 @@
             usersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Carregando usuários...</td></tr>';
             onValue(ref(db, 'users'), snapshot => {
                 allAdminUsers = Object.entries(snapshot.val() || {}).map(([uid, data]) => ({ uid, ...data }));
-                renderAdminUsersTable(1);
-                // Additional stats can be loaded here
+                currentAdminPage = 1;
+                renderAdminUsersTable();
             });
         }
 
@@ -1061,22 +1064,27 @@
                 allResellerUsers = Object.entries(allUsers)
                     .filter(([uid, data]) => data.createdBy === resellerId)
                     .map(([uid, data]) => ({ uid, ...data }));
-                renderResellerUsersTable(1);
-                // Update stats, etc.
+                currentResellerPage = 1;
+                renderResellerUsersTable();
             });
         }
 
         // --- TABLE RENDERING, SEARCH & PAGINATION ---
-        function renderAdminUsersTable(page, searchTerm = '') {
-            const filteredUsers = allAdminUsers.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()));
-            // Implement pagination and render logic here
+        function renderAdminUsersTable() {
+            const searchTerm = document.getElementById('admin-user-search').value.toLowerCase();
+            const filteredUsers = allAdminUsers.filter(u => u.email.toLowerCase().includes(searchTerm));
+            
             const tableBody = document.getElementById('users-table-body');
             tableBody.innerHTML = '';
+
             if (filteredUsers.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>';
                 return;
             }
-            filteredUsers.forEach(user => {
+
+            const paginatedUsers = filteredUsers.slice((currentAdminPage - 1) * ROWS_PER_PAGE, currentAdminPage * ROWS_PER_PAGE);
+
+            paginatedUsers.forEach(user => {
                  const row = `<tr>
                     <td>${user.email.split('@')[0]}</td>
                     <td>${user.accountType}</td>
@@ -1092,18 +1100,27 @@
                 </tr>`;
                 tableBody.innerHTML += row;
             });
+            renderPaginationControls('admin-pagination-controls', currentAdminPage, filteredUsers.length, (page) => {
+                currentAdminPage = page;
+                renderAdminUsersTable();
+            });
         }
         
-        function renderResellerUsersTable(page, searchTerm = '') {
-            const filteredUsers = allResellerUsers.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()));
-            // Implement pagination and render logic here
+        function renderResellerUsersTable() {
+            const searchTerm = document.getElementById('reseller-user-search').value.toLowerCase();
+            const filteredUsers = allResellerUsers.filter(u => u.email.toLowerCase().includes(searchTerm));
+
             const tableBody = document.getElementById('reseller-users-table');
             tableBody.innerHTML = '';
+
             if (filteredUsers.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum usuário encontrado.</td></tr>';
                 return;
             }
-            filteredUsers.forEach(user => {
+
+            const paginatedUsers = filteredUsers.slice((currentResellerPage - 1) * ROWS_PER_PAGE, currentResellerPage * ROWS_PER_PAGE);
+
+            paginatedUsers.forEach(user => {
                 const row = `<tr>
                     <td>${user.email.split('@')[0]}</td>
                     <td>${user.accountType}</td>
@@ -1118,10 +1135,44 @@
                 </tr>`;
                 tableBody.innerHTML += row;
             });
+            renderPaginationControls('reseller-pagination-controls', currentResellerPage, filteredUsers.length, (page) => {
+                currentResellerPage = page;
+                renderResellerUsersTable();
+            });
         }
 
-        document.getElementById('admin-user-search').addEventListener('input', e => renderAdminUsersTable(1, e.target.value));
-        document.getElementById('reseller-user-search').addEventListener('input', e => renderResellerUsersTable(1, e.target.value));
+        function renderPaginationControls(containerId, currentPage, totalItems, onPageClick) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / ROWS_PER_PAGE);
+
+            if (totalPages <= 1) return;
+
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&laquo;';
+            prevButton.className = 'btn btn-secondary mx-1';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => onPageClick(currentPage - 1));
+            container.appendChild(prevButton);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = `btn mx-1 ${i === currentPage ? 'btn-primary' : 'btn-secondary'}`;
+                pageButton.addEventListener('click', () => onPageClick(i));
+                container.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = '&raquo;';
+            nextButton.className = 'btn btn-secondary mx-1';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => onPageClick(currentPage + 1));
+            container.appendChild(nextButton);
+        }
+
+        document.getElementById('admin-user-search').addEventListener('input', () => renderAdminUsersTable());
+        document.getElementById('reseller-user-search').addEventListener('input', () => renderResellerUsersTable());
 
         // --- ACTIONS ---
         window.handleAction = async (action, uid, createdBy) => {
@@ -1132,10 +1183,14 @@
             switch(action) {
                 case 'renew':
                     showConfirmation(`Renovar a conta do usuário ${user.email.split('@')[0]} por mais 1 mês?`, async () => {
-                        const currentExpiration = user.expirationDate ? new Date(user.expirationDate) : new Date();
-                        const startDate = currentExpiration > new Date() ? currentExpiration : new Date();
-                        startDate.setMonth(startDate.getMonth() + 1);
-                        await update(userRef, { expirationDate: startDate.toISOString() });
+                        const baseDate = user.expirationDate && new Date(user.expirationDate) > new Date()
+                            ? new Date(user.expirationDate)
+                            : new Date();
+                        
+                        const newExpirationDate = new Date(baseDate);
+                        newExpirationDate.setMonth(newExpirationDate.getMonth() + 1);
+
+                        await update(userRef, { expirationDate: newExpirationDate.toISOString() });
                         showToast('Conta renovada com sucesso!');
                     });
                     break;

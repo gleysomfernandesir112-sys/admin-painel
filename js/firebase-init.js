@@ -1,5 +1,5 @@
 // firebase-init.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, ref, set, get, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
@@ -20,4 +20,4 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 // Exporta as funções que serão usadas em outros scripts
-export { auth, getAuth, onAuthStateChanged, signOut, db, ref, set, get, onValue, remove, update, signInWithEmailAndPassword, createUserWithEmailAndPassword };
+export { initializeApp, deleteApp, auth, getAuth, onAuthStateChanged, signOut, db, ref, set, get, onValue, remove, update, signInWithEmailAndPassword, createUserWithEmailAndPassword };
