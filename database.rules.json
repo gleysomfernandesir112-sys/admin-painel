@@ -1,0 +1,38 @@
+{
+  "rules": {
+    // Os usuários só podem ler/escrever seus próprios dados (necessário para login)
+    // Esta regra é genérica, mas na prática a autenticação do Firebase já protege isso.
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    // Regras para os revendedores
+    "resellers": {
+      // Todos os usuários autenticados podem ler a lista de revendedores (para fins de estatísticas)
+      ".read": "auth != null",
+      // Apenas o admin pode escrever na lista de revendedores (criar, editar, apagar)
+      ".write": "root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        // Um revendedor pode ler seus próprios dados
+        ".read": "auth != null && auth.uid == $uid",
+        // Um revendedor não pode alterar seus próprios créditos totais, apenas o admin pode
+        "credits_total": {
+          ".write": "root.child('admins').child(auth.uid).exists()"
+        },
+        // Outros campos podem ser escritos pelo próprio revendedor (se necessário no futuro)
+        ".validate": "newData.hasChildren(['email', 'credits_total', 'credits_used', 'createdAt'])"
+      }
+    },
+    // O admin tem controle total
+    "admins": {
+      // Apenas o admin pode ler e escrever na lista de admins
+      ".read": "root.child('admins').child(auth.uid).exists()",
+      ".write": "root.child('admins').child(auth.uid).exists()"
+    },
+    // Regra geral: por padrão, ninguém pode ler ou escrever, a menos que uma regra específica permita
+    ".read": false,
+    ".write": false
+  }
+}
