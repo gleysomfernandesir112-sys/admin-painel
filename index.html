@@ -404,9 +404,11 @@
                     Painel Hub Admin
                 </h2>
                 <!-- Access Links Note -->
-                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
-                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
-                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm player-links-container">
+                    <p class="text-white font-semibold mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list">
+                        <p class="text-gray-300">Verificando...</p>
+                    </div>
                 </div>
                 <nav>
                     <ul>
@@ -418,9 +420,11 @@
             </aside>
             <main class="main-content p-6 bg-gray-50">
                 <!-- Access Links Note in Header -->
-                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
-                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg player-links-container">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list text-sm text-blue-600">
+                        <p>Verificando...</p>
+                    </div>
                 </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
@@ -530,9 +534,11 @@
                     Painel Hub Revendedor
                 </h2>
                 <!-- Access Links Note -->
-                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
-                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
-                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm player-links-container">
+                    <p class="text-white font-semibold mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list">
+                        <p class="text-gray-300">Verificando...</p>
+                    </div>
                 </div>
                 <nav>
                     <ul>
@@ -543,9 +549,11 @@
             </aside>
             <main class="main-content p-6 bg-gray-50">
                 <!-- Access Links Note in Header -->
-                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
-                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg player-links-container">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list text-sm text-blue-600">
+                        <p>Verificando...</p>
+                    </div>
                 </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
@@ -653,9 +661,11 @@
                     Painel Hub Admin
                 </h2>
                 <!-- Access Links Note -->
-                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm">
-                    <p class="text-white font-semibold mb-1">Acesso ao Site:</p>
-                    <p><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-600 rounded-lg text-sm player-links-container">
+                    <p class="text-white font-semibold mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list">
+                        <p class="text-gray-300">Verificando...</p>
+                    </div>
                 </div>
                 <nav>
                     <ul>
@@ -667,9 +677,11 @@
             </aside>
             <main class="main-content p-6 bg-gray-50">
                 <!-- Access Links Note in Header -->
-                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Site:</p>
-                    <p class="text-sm text-blue-600"><a href="http://web2.fasthub.cloud" target="_blank" class="access-link">http://web2.fasthub.cloud</a> (Sempre use <strong>http://</strong> para evitar problemas!)</p>
+                <div class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg player-links-container">
+                    <p class="text-sm font-semibold text-blue-800 mb-1">Acesso ao Player:</p>
+                    <div class="player-links-list text-sm text-blue-600">
+                        <p>Verificando...</p>
+                    </div>
                 </div>
                 <header class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 flex items-center">
@@ -1028,6 +1040,7 @@
         // --- AUTHENTICATION ---
         onAuthStateChanged(auth, user => {
             if (user) {
+                checkPlayerSites(); // Check sites on login
                 const isAdmin = user.email === 'admin@fasthub.cloud';
                 if (isAdmin) {
                     showView('admin-dashboard');
@@ -1064,6 +1077,63 @@
             btn.addEventListener('click', e => { e.preventDefault(); signOut(auth); });
         });
 
+        // --- DYNAMIC SITE CHECKER ---
+        function checkPlayerSites() {
+            const sites = [
+                'http://web.fasthub.cloud',
+                'http://web2.fasthub.cloud',
+                'http://web3.fasthub.cloud',
+                'http://web4.fasthub.cloud'
+            ];
+            const containers = document.querySelectorAll('.player-links-container .player-links-list');
+            
+            containers.forEach(container => container.innerHTML = '<p class="text-gray-300">Verificando...</p>');
+
+            let onlineSites = [];
+
+            sites.forEach(url => {
+                const img = new Image();
+                let timeout = true;
+                img.onload = () => {
+                    if(timeout) {
+                        timeout = false;
+                        onlineSites.push({ url, status: 'online' });
+                        renderLinks();
+                    }
+                };
+                img.onerror = () => {
+                    if(timeout) {
+                        timeout = false;
+                        onlineSites.push({ url, status: 'offline' });
+                        renderLinks();
+                    }
+                };
+                img.src = `${url}/favicon.ico?_=${Date.now()}`;
+                setTimeout(() => {
+                    if(timeout) {
+                        timeout = false;
+                        onlineSites.push({ url, status: 'offline' });
+                        renderLinks();
+                    }
+                }, 3000); // 3 second timeout
+            });
+
+            function renderLinks() {
+                if (onlineSites.length !== sites.length) return; // Wait for all checks to complete
+
+                containers.forEach(container => {
+                    container.innerHTML = '';
+                    onlineSites.forEach(site => {
+                        const linkEl = document.createElement('p');
+                        const statusClass = site.status === 'online' ? 'text-green-400' : 'text-red-500';
+                        const statusText = site.status === 'online' ? 'Online' : 'Offline';
+                        linkEl.innerHTML = `<a href="${site.url}" target="_blank" class="hover:underline">${site.url.replace('http://','')}</a> <span class="${statusClass}">(${statusText})</span>`;
+                        container.appendChild(linkEl);
+                    });
+                });
+            }
+        }
+
         // --- DASHBOARD & DATA LOADING ---
         function loadAdminDashboard() {
             const usersTableBody = document.getElementById('users-table-body');
@@ -1097,6 +1167,27 @@
             });
         }
 
+        function loadResellers() {
+            const resellersTableBody = document.getElementById('resellers-table');
+            resellersTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando...</td></tr>';
+            onValue(ref(db, 'resellers'), snapshot => {
+                const resellers = snapshot.val() || {};
+                resellersTableBody.innerHTML = '';
+                Object.entries(resellers).forEach(([uid, reseller]) => {
+                    resellersTableBody.innerHTML += `<tr>
+                        <td>${reseller.email}</td>
+                        <td>${reseller.credits_used || 0} / ${reseller.credits_total || 0}</td>
+                        <td>${reseller.credits_used || 0}</td>
+                        <td>${new Date(reseller.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="openAddCreditsModal('${uid}')"><i class="bi bi-plus-circle-fill"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteReseller('${uid}')"><i class="bi bi-trash-fill"></i></button>
+                        </td>
+                    </tr>`;
+                });
+            });
+        }
+
         // --- TABLE RENDERING, SEARCH & PAGINATION ---
         function renderAdminUsersTable() {
             const searchTerm = document.getElementById('admin-user-search').value.toLowerCase();
@@ -1107,6 +1198,7 @@
 
             if (filteredUsers.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum usuário encontrado.</td></tr>';
+                renderPaginationControls('admin-pagination-controls', 0, 0, () => {});
                 return;
             }
 
@@ -1143,6 +1235,7 @@
 
             if (filteredUsers.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum usuário encontrado.</td></tr>';
+                renderPaginationControls('reseller-pagination-controls', 0, 0, () => {});
                 return;
             }
 
@@ -1366,7 +1459,8 @@
         };
 
         // --- USER CREATION ---
-        function generateRandomString(length) {
+        function generateRandomUsername() {
+            const length = Math.floor(Math.random() * (8 - 5 + 1)) + 5;
             return Math.random().toString(36).substring(2, 2 + length);
         }
 
@@ -1376,7 +1470,7 @@
         async function generateTestAccount() {
             showConfirmation('Gerar uma conta de teste gratuita por 3 horas?', async () => {
                 const username = generateRandomUsername();
-                const password = generateRandomString(8);
+                const password = generateRandomUsername(); // Also use random for password
                 const email = `${username}@fasthub.cloud`;
                 const isReseller = auth.currentUser.email !== 'admin@fasthub.cloud';
                 const createdBy = isReseller ? auth.currentUser.uid : 'admin';
