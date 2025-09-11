@@ -1065,11 +1065,16 @@
         function loadAdminDashboard() {
             const usersTableBody = document.getElementById('users-table-body');
             usersTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Carregando usuários...</td></tr>';
-            onValue(ref(db, 'users'), snapshot => {
-                allAdminUsers = Object.entries(snapshot.val() || {}).map(([uid, data]) => ({ uid, ...data }));
+            onValue(ref(db, 'users'), async snapshot => {
+                const users = snapshot.val() || {};
+                allAdminUsers = Object.entries(users).map(([uid, data]) => ({ uid, ...data }));
+                document.getElementById('total-users-count').textContent = allAdminUsers.length;
                 currentAdminPage = 1;
                 renderAdminUsersTable();
                 renderHistoricalChart('admin-new-users-chart', allAdminUsers, adminNewUsersChart);
+                
+                const resellers = (await get(ref(db, 'resellers'))).val() || {};
+                renderUsersByCreatorChart(allAdminUsers, resellers);
             });
         }
 
