@@ -965,8 +965,11 @@
         let allResellerUsers = [];
         let currentResellerPage = 1;
         const ROWS_PER_PAGE = 10;
+        let adminUsersByCreatorChart = null;
         let adminNewUsersChart = null;
+        let resellerUsersByTypeChart = null;
         let resellerNewUsersChart = null;
+
 
         // --- VIEW MANAGEMENT ---
         const views = {
@@ -1086,9 +1089,11 @@
                 allResellerUsers = Object.entries(allUsers)
                     .filter(([uid, data]) => data.createdBy === resellerId)
                     .map(([uid, data]) => ({ uid, ...data }));
+                document.getElementById('reseller-users-count').textContent = allResellerUsers.length;
                 currentResellerPage = 1;
                 renderResellerUsersTable();
                 renderHistoricalChart('reseller-new-users-chart', allResellerUsers, resellerNewUsersChart);
+                renderResellerUsersByTypeChart(allResellerUsers);
             });
         }
 
@@ -1198,20 +1203,84 @@
         document.getElementById('reseller-user-search').addEventListener('input', () => renderResellerUsersTable());
 
         // --- CHARTING ---
+        function renderUsersByCreatorChart(users, resellers) {
+            const stats = {};
+            stats['admin'] = { name: 'Admin', count: 0 };
+            Object.keys(resellers).forEach(uid => {
+                stats[uid] = { name: resellers[uid].email.split('@')[0], count: 0 };
+            });
+
+            users.forEach(user => {
+                const creatorId = user.createdBy;
+                if (stats[creatorId]) {
+                    stats[creatorId].count++;
+                } else if (creatorId && !creatorId.includes('@')) { // Handle old data or non-reseller creators
+                    stats[creatorId] = { name: creatorId, count: 1 };
+                }
+            });
+
+            const chartData = Object.values(stats).filter(s => s.count > 0);
+            const tableBody = document.getElementById('users-by-creator-table-body');
+            tableBody.innerHTML = '';
+            chartData.sort((a, b) => b.count - a.count).forEach(d => {
+                tableBody.innerHTML += `<tr><td>${d.name}</td><td>${d.count}</td></tr>`;
+            });
+
+            const ctx = document.getElementById('users-by-creator-chart').getContext('2d');
+            if (adminUsersByCreatorChart) adminUsersByCreatorChart.destroy();
+            adminUsersByCreatorChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartData.map(d => d.name),
+                    datasets: [{
+                        data: chartData.map(d => d.count),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
+        function renderResellerUsersByTypeChart(users) {
+            const typeStats = { temporary: 0, lifetime: 0, test: 0 };
+            users.forEach(user => {
+                if (typeStats[user.accountType] !== undefined) typeStats[user.accountType]++;
+            });
+
+            const tableBody = document.getElementById('reseller-users-by-type-table-body');
+            tableBody.innerHTML = `
+                <tr><td>Contas Temporárias</td><td>${typeStats.temporary}</td></tr>
+                <tr><td>Contas Vitalícias</td><td>${typeStats.lifetime}</td></tr>
+                <tr><td>Contas de Teste</td><td>${typeStats.test}</td></tr>
+            `;
+
+            const ctx = document.getElementById('reseller-users-by-type-chart').getContext('2d');
+            if (resellerUsersByTypeChart) resellerUsersByTypeChart.destroy();
+            resellerUsersByTypeChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Temporária', 'Vitalícia', 'Teste'],
+                    datasets: [{
+                        data: [typeStats.temporary, typeStats.lifetime, typeStats.test],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            });
+        }
+
         function renderHistoricalChart(canvasId, users, chartInstance) {
             const ctx = document.getElementById(canvasId).getContext('2d');
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
 
             const last30Days = {};
             const labels = [];
             for (let i = 29; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
-                const a = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                labels.push(a);
-                last30Days[a] = 0;
+                const key = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                labels.push(key);
+                last30Days[key] = 0;
             }
 
             users.forEach(user => {
@@ -1220,36 +1289,30 @@
                 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
                 if (createdAt >= thirtyDaysAgo) {
                     const key = createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                    if (last30Days[key] !== undefined) {
-                        last30Days[key]++;
-                    }
+                    if (last30Days[key] !== undefined) last30Days[key]++;
                 }
             });
 
             const data = Object.values(last30Days);
 
-            chartInstance = new Chart(ctx, {
+            const newChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: 'Novos Usuários',
                         data: data,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         fill: true,
                         tension: 0.4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
+
+            if (canvasId === 'admin-new-users-chart') adminNewUsersChart = newChart;
+            else resellerNewUsersChart = newChart;
         }
 
         // --- ACTIONS ---
@@ -1312,20 +1375,100 @@
 
         async function generateTestAccount() {
             showConfirmation('Gerar uma conta de teste gratuita por 3 horas?', async () => {
-                const username = generateRandomString(8);
+                const username = generateRandomUsername();
                 const password = generateRandomString(8);
-                // ... rest of the function
+                const email = `${username}@fasthub.cloud`;
+                const isReseller = auth.currentUser.email !== 'admin@fasthub.cloud';
+                const createdBy = isReseller ? auth.currentUser.uid : 'admin';
+
+                const expirationDate = new Date();
+                expirationDate.setHours(expirationDate.getHours() + 3);
+
+                const tempApp = initializeApp(auth.app.options, 'temp-app-' + Date.now());
+                const tempAuth = getAuth(tempApp);
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                    await set(ref(db, `users/${userCredential.user.uid}`), {
+                        email, status: 'active', createdAt: new Date().toISOString(), createdBy,
+                        role: 'user', accountType: 'test', expirationDate: expirationDate.toISOString()
+                    });
+
+                    document.getElementById('test-username-display').textContent = username;
+                    document.getElementById('test-password-display').textContent = password;
+                    modals.testAccount.show();
+                } catch (error) {
+                    showToast('Erro ao criar conta de teste: ' + error.message, 'error');
+                } finally {
+                    await deleteApp(tempApp);
+                }
             });
         }
 
         document.getElementById('create-user-form').addEventListener('submit', async e => {
             e.preventDefault();
             let username = document.getElementById('new-username').value.trim();
-            if (!username) {
-                const randomLength = Math.floor(Math.random() * (8 - 5 + 1)) + 5;
-                username = generateRandomString(randomLength);
+            if (!username) username = generateRandomUsername();
+            
+            const password = document.getElementById('new-password').value;
+            if (!password) return showToast('A senha é obrigatória.', 'error');
+
+            const email = `${username}@fasthub.cloud`;
+            const isReseller = auth.currentUser.email !== 'admin@fasthub.cloud';
+            const createdBy = isReseller ? auth.currentUser.uid : 'admin';
+
+            let creditsCost = 0;
+            let expirationDate = null;
+            let accountType = 'temporary';
+
+            if (document.getElementById('lifetime-account').checked) {
+                creditsCost = 1; // Lifetime cost
+                accountType = 'lifetime';
+            } else {
+                const duration = parseInt(document.getElementById('duration-value').value);
+                creditsCost = 1; // Monthly cost
+                const now = new Date();
+                expirationDate = new Date(now.setMonth(now.getMonth() + duration)).toISOString();
             }
-            // ... rest of the function
+
+            if (isReseller) {
+                const resellerRef = ref(db, `resellers/${createdBy}`);
+                const snapshot = await get(resellerRef);
+                const creditsRemaining = (snapshot.val().credits_total || 0) - (snapshot.val().credits_used || 0);
+                if (creditsRemaining < creditsCost) {
+                    return showToast(`Créditos insuficientes. Necessário: ${creditsCost}, Disponível: ${creditsRemaining}.`, 'error');
+                }
+            }
+
+            const tempApp = initializeApp(auth.app.options, 'temp-app-' + Date.now());
+            const tempAuth = getAuth(tempApp);
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                const userData = {
+                    email, status: 'active', createdAt: new Date().toISOString(), createdBy,
+                    role: 'user', accountType, ...(expirationDate && { expirationDate })
+                };
+                await set(ref(db, `users/${userCredential.user.uid}`), userData);
+
+                if (isReseller) {
+                    const resellerRef = ref(db, `resellers/${createdBy}`);
+                    const snapshot = await get(resellerRef);
+                    await update(resellerRef, { credits_used: (snapshot.val().credits_used || 0) + creditsCost });
+                }
+                
+                modals.createUser.hide();
+                document.getElementById('create-user-form').reset();
+                
+                document.getElementById('created-username-display').textContent = username;
+                document.getElementById('created-password-display').textContent = password;
+                modals.userCreated.show();
+
+            } catch (error) {
+                showToast(error.code === 'auth/email-already-in-use' ? 'Usuário já existe.' : 'Erro ao criar usuário.', 'error');
+            } finally {
+                await deleteApp(tempApp);
+            }
         });
 
     </script>
